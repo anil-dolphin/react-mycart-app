@@ -1139,20 +1139,8 @@ select {
   box-sizing: border-box;
   pointer-events: none;
 }
-.changed_cell {
-  position: relative;
-}
-.changed_cell input[type="text"],
-.changed_cell input[type="number"] {
-  border: 1px solid #e0e1e2;
-}
-.changed_cell.valid_row input[type="text"],
-.changed_cell.valid_row input[type="number"] {
+input.has-qty {
   border: 1px solid #5a6170;
-}
-.changed_cell.error_row input[type="text"],
-.changed_cell.error_row input[type="number"] {
-  border: 1px solid #ff5555;
 }
 .loupe {
   font-family: "Linearicons";

@@ -17,6 +17,7 @@ class MainForm extends React.Component {
   state = {
     isLoading: true,
     prodLocQty: {},
+    locPo: {},
     total: { products: [], locations: [], grand: 0 },
     locations: {},
     products: {},
@@ -97,7 +98,7 @@ class MainForm extends React.Component {
         size="4"
         min={0}
         max={1000}
-        className={qty > 0 && "has-qty"}
+        className={qty > 0 ? "has-qty" : ""}
         value={qty}
         data-role="cart-item-qty"
         onChange={(event) => {
@@ -212,12 +213,23 @@ class MainForm extends React.Component {
     const prodLocQty = this.state.prodLocQty;
 
     if (!prodLocQty[productId]) {
-      prodLocQty[productId] = { [locationId]: { qty: parseInt(qty, 10) } };
+      prodLocQty[productId] = {
+        [locationId]: { qty: parseInt(qty, 10), isChanged: true },
+      };
     } else {
-      prodLocQty[productId][locationId] = { qty: parseInt(qty, 10) };
+      prodLocQty[productId][locationId] = {
+        qty: parseInt(qty, 10),
+        isChanged: true,
+      };
     }
     this.setState({ prodLocQty: prodLocQty });
     this.generateTotals();
+  };
+
+  setPO = (locationId, po) => {
+    const locPo = this.state.locPo;
+    locPo[locationId] = po;
+    this.setState({ locPo: locPo, isChanged: true });
   };
 
   testClick = (e) => {
@@ -228,7 +240,7 @@ class MainForm extends React.Component {
   componentDidMount = () => {
     let promise1 = new Promise((resolve, reject) => {
       getProdLocQty().then((data) => {
-        this.setState({ prodLocQty: data });
+        this.setState({ prodLocQty: data.qty, locPo: data.po });
         if (data) {
           resolve(data);
         }
@@ -320,12 +332,15 @@ class MainForm extends React.Component {
     // console.log(this.state.locations);
 
     return (
-      <form id="product_cart_form" className="form multicheckout shipping test">
-        {/* <button onClick={this.testClick}>Test</button> */}
+      <div>
         <div className="multishipping_cart_wrapper">
           <div className="multishipping_cart_header" style={{ top: 0 }}>
             <ProductFilters />
-            <LocationFilters locations={this.state.locations} />
+            <LocationFilters
+              locPo={this.state.locPo}
+              locations={this.state.locations}
+              changePO={this.setPO}
+            />
             <div className="address_list_total table_grand_total_by_sku">
               <div className="total_label">Extended</div>
             </div>
@@ -436,7 +451,6 @@ class MainForm extends React.Component {
             </div>
           </div>
         </div>
-
         <div className="multishipping_footer">
           <div className="exel-part">
             <h3>Prefer Excel?</h3>
@@ -556,7 +570,7 @@ class MainForm extends React.Component {
             </div>
           </div>
         </div>
-      </form>
+      </div>
     );
   }
 }

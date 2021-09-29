@@ -1,11 +1,6 @@
 import React from "react";
 
 class LocationBlock extends React.Component {
-  // constructor(props) {
-  //   super(props);
-  //   this.loaderRef = React.createRef();
-  // }
-
   render() {
     const { location } = this.props;
 
@@ -15,24 +10,30 @@ class LocationBlock extends React.Component {
         title="Delray Beach - Delray Marketplace"
       >
         <div className="location-info">
-          <span>Delray Beach FL</span>
+          <span>
+            {location.city} {location.region.region_code}
+          </span>
           <br />
-          Delray Beach - Delray Marketplace
+          {location.city} - {location.street[0]}
           <br />
-          <span>937</span>
+          <span>{location.id}</span>
           <div className="more-info">
-            <span className="cname">Shama Arige</span>
-            <span className="phoneno">5612237640</span>
+            <span className="cname">
+              {location.firstname} {location.lastname}
+            </span>
+            <span className="phoneno">{location.telephone}</span>
           </div>
         </div>
         <div className="location-po">
           <input
             type="text"
-            name="po[207]"
-            id="po-207"
             size="20"
-            value=""
-            data-pval=""
+            placeholder="PO#"
+            className={this.props.po != "" ? "has-qty" : ""}
+            value={this.props.po}
+            onChange={(event) => {
+              this.props.changePO(location.id, event.target.value.trim());
+            }}
           />
         </div>
       </div>

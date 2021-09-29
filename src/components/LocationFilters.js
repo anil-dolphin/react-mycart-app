@@ -1,13 +1,23 @@
 import React from "react";
-
 import LocationBlock from "./LocationBlock";
 
 class LocationFilters extends React.Component {
   renderLocations() {
     return Object.values(this.props.locations).map((location) => {
-      return <LocationBlock location={location} key={location.id} />;
+      return (
+        <LocationBlock
+          po={this.getLocationPo(location.id)}
+          changePO={this.props.changePO}
+          location={location}
+          key={location.id}
+        />
+      );
     });
   }
+
+  getLocationPo = (locationId) => {
+    return this.props.locPo[locationId] ? this.props.locPo[locationId] : "";
+  };
 
   render() {
     return (
