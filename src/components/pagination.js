@@ -54,7 +54,7 @@ function Pagination({
 
   const paginationPage = renderPage(currenPage, totalItemsCount) || [];
   return (
-    <div>
+    <div className="location-pagination">
       {component === "products" && (
         <button
           type="button"
@@ -69,7 +69,9 @@ function Pagination({
         className={`prev ${currenPage === 1 ? "disabled" : ""}`}
         onClick={() => goToPrevData()}
       >
-        {`<`}
+       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="arrows-icon" width="25" height="25">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
       </button>
       {component === "products" &&
         paginationPage.map((number) => {
@@ -97,7 +99,9 @@ function Pagination({
           currenPage * itemsCountPerPage >= totalItemsCount ? "disabled" : ""
         }`}
       >
-        {`>`}
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="arrows-icon" width="25" height="25">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+      </svg>
       </button>
       {component === "products" && (
         <button

@@ -10,10 +10,20 @@ import {
   getProducts,
   getLocations,
   getProdLocQty,
+  getTest,
+  getTestProducts,
+  getTestLocations,
+  testUpdateQtys,
 } from "../helpers/dataHelper";
 import { toCurrency } from "../helpers/utilityHelper";
 
 class MainForm extends React.Component {
+  constructor(props) {
+    super(props);
+    this.prevProdLocQty = {};
+    this.prevLocPo = {};
+  }
+
   state = {
     isLoading: true,
     prodLocQty: {},
@@ -23,7 +33,26 @@ class MainForm extends React.Component {
     products: {},
     productsPagination: { limit: 10, page: 1, totalPage: 0 },
     locationsPagination: { limit: 6, page: 1, totalPage: 0 },
+    productFilters: {
+      kw: "",
+      categories: [],
+      make: 0,
+      model: 0,
+      brand: 0,
+    },
+    locationFilters: {
+      kw: "",
+      region: "",
+      state: 0,
+      city: "",
+      applyQty: false,
+      qty: "gtz",
+    },
   };
+
+  /**
+   * Renderers
+   */
 
   renderProducts = () => {
     const { products } = this.state;
@@ -37,20 +66,6 @@ class MainForm extends React.Component {
           key={product.entity_id}
         />
       );
-    });
-  };
-
-  setProductQuantity = (data) => {
-    const { locations } = this.state;
-    return Object.values(locations).map((location) => {
-      this.setQty(data.productId, location.id, data.qty);
-    });
-  };
-
-  removeProductQuantity = (productId) => {
-    const { locations } = this.state;
-    return Object.values(locations).map((location) => {
-      this.setQty(productId, location.id, 0);
     });
   };
 
@@ -84,21 +99,31 @@ class MainForm extends React.Component {
 
   renderQtyInput = (productId, locationId) => {
     const { prodLocQty } = this.state;
-    let qty = 0;
-    if (
-      prodLocQty[productId] &&
-      prodLocQty[productId][locationId] &&
-      prodLocQty[productId][locationId]["qty"]
-    ) {
+    let qty = 0,
+      pqty = null,
+      cssClass = "";
+    if (prodLocQty[productId] && prodLocQty[productId][locationId]) {
       qty = prodLocQty[productId][locationId]["qty"];
     }
+    cssClass = qty > 0 ? "has-qty" : "";
+
+    if (
+      this.prevProdLocQty[productId] &&
+      this.prevProdLocQty[productId][locationId]
+    ) {
+      pqty = this.prevProdLocQty[productId][locationId]["qty"];
+      cssClass = qty != pqty ? cssClass + " qty-changed" : cssClass;
+    } else {
+      cssClass = qty > 0 ? "has-qty qty-changed" : "";
+    }
+
     return (
       <input
         type="number"
         size="4"
         min={0}
         max={1000}
-        className={qty > 0 ? "has-qty" : ""}
+        className={cssClass}
         value={qty}
         data-role="cart-item-qty"
         onChange={(event) => {
@@ -112,46 +137,6 @@ class MainForm extends React.Component {
         }}
       />
     );
-  };
-
-  generateTotals = () => {
-    const { prodLocQty } = this.state;
-    const products = this.state.products;
-    var grandTotal = 0,
-      pTotals = [],
-      lTotals = [];
-
-    // if (
-    //   Object.keys(prodLocQty).length != 0 &&
-    //   Object.keys(products).length != 0
-    // ) {
-    Object.keys(prodLocQty).map((productId) => {
-      const price = products[productId].price;
-      Object.keys(prodLocQty[productId]).map((locationId) => {
-        const qty = prodLocQty[productId][locationId]["qty"];
-        const total = qty * price;
-        if (pTotals[productId]) {
-          pTotals[productId]["price"] += total;
-          pTotals[productId]["qty"] += qty;
-        } else {
-          pTotals[productId] = { price: total, qty: qty };
-        }
-
-        if (lTotals[locationId]) {
-          lTotals[locationId]["price"] += total;
-          lTotals[locationId]["qty"] += qty;
-        } else {
-          lTotals[locationId] = { price: total, qty: qty };
-        }
-
-        grandTotal += total;
-      });
-    });
-    // }
-
-    this.setState({
-      total: { products: pTotals, locations: lTotals, grand: grandTotal },
-    });
   };
 
   renderProductTotals = () => {
@@ -169,23 +154,6 @@ class MainForm extends React.Component {
         </div>
       );
     });
-  };
-
-  /**
-   * Unused function
-   */
-  getProductTotal = (productId) => {
-    const { prodLocQty } = this.state;
-    const products = this.state.products;
-
-    var total = 0;
-    if (prodLocQty[productId]) {
-      const price = products[productId].price;
-      Object.values(prodLocQty[productId]).map((location) => {
-        total += price * location["qty"];
-      });
-    }
-    return total;
   };
 
   renderLocationTotals = () => {
@@ -209,18 +177,69 @@ class MainForm extends React.Component {
     });
   };
 
+  /**
+   * Operations
+   */
+
+  setProductQuantity = (data) => {
+    const { locations } = this.state;
+    return Object.values(locations).map((location) => {
+      this.setQty(data.productId, location.id, data.qty);
+    });
+  };
+
+  removeProductQuantity = (productId) => {
+    const { locations } = this.state;
+    return Object.values(locations).map((location) => {
+      this.setQty(productId, location.id, 0);
+    });
+  };
+
+  generateTotals = () => {
+    const { prodLocQty } = this.state;
+    const products = this.state.products;
+    var grandTotal = 0,
+      pTotals = [],
+      lTotals = [];
+
+    Object.keys(prodLocQty).map((productId) => {
+      const price = products[productId].price;
+      Object.keys(prodLocQty[productId]).map((locationId) => {
+        const qty = prodLocQty[productId][locationId]["qty"];
+        const total = qty * price;
+
+        if (pTotals[productId]) {
+          pTotals[productId]["price"] += total;
+          pTotals[productId]["qty"] += qty;
+        } else {
+          pTotals[productId] = { price: total, qty: qty };
+        }
+
+        if (lTotals[locationId]) {
+          lTotals[locationId]["price"] += total;
+          lTotals[locationId]["qty"] += qty;
+        } else {
+          lTotals[locationId] = { price: total, qty: qty };
+        }
+
+        grandTotal += total;
+      });
+    });
+
+    this.setState({
+      total: { products: pTotals, locations: lTotals, grand: grandTotal },
+    });
+  };
+
   setQty = (productId, locationId, qty) => {
     const prodLocQty = this.state.prodLocQty;
 
     if (!prodLocQty[productId]) {
       prodLocQty[productId] = {
-        [locationId]: { qty: parseInt(qty, 10), isChanged: true },
+        [locationId]: { qty: parseInt(qty, 10) },
       };
     } else {
-      prodLocQty[productId][locationId] = {
-        qty: parseInt(qty, 10),
-        isChanged: true,
-      };
+      prodLocQty[productId][locationId] = { qty: parseInt(qty, 10) };
     }
     this.setState({ prodLocQty: prodLocQty });
     this.generateTotals();
@@ -229,18 +248,182 @@ class MainForm extends React.Component {
   setPO = (locationId, po) => {
     const locPo = this.state.locPo;
     locPo[locationId] = po;
-    this.setState({ locPo: locPo, isChanged: true });
+    this.setState({ locPo: locPo });
   };
 
+  updateProductFilter = (type, value) => {
+    const filters = this.state.productFilters;
+    filters[type] = value;
+    this.setState({ productFilters: filters });
+    this.getProductPostData();
+  };
+
+  getProductPostData = () => {
+    let productPostData = {
+      brand: this.state.productFilters.brand,
+      categories: !_.isEmpty(this.state.productFilters.categories)
+        ? this.state.productFilters.categories.map((category) => {
+            return category.id;
+          })
+        : [],
+      kw: this.state.productFilters.kw.trim(),
+      make: this.state.productFilters.make,
+      model: this.state.productFilters.model,
+      limit: this.state.productsPagination.limit,
+      page: this.state.productsPagination.page,
+    };
+
+    return productPostData;
+  };
+
+  updateLocationFilter = (type, value) => {
+    const filters = this.state.locationFilters;
+    filters[type] = value;
+    this.setState({ locationFilters: filters });
+    this.getLocationPostData();
+  };
+
+  getLocationPostData = () => {
+    let locationPostData = {
+      kw: this.state.locationFilters.kw.trim(),
+      region: this.state.locationFilters.region,
+      state: this.state.locationFilters.state,
+      city: this.state.locationFilters.city,
+      applyQty: this.state.locationFilters.applyQty,
+      qty: this.state.locationFilters.qty,
+      limit: this.state.locationsPagination.limit,
+      page: this.state.locationsPagination.page,
+    };
+
+    return locationPostData;
+  };
+
+  getQtyPostData = () => {
+    const prodLocQty = this.state.prodLocQty;
+
+    let changedQtys = {};
+    _.map(prodLocQty, (locations, productId) => {
+      _.map(locations, (qtys, locationId) => {
+        let finalQty = null;
+
+        if (
+          this.prevProdLocQty[productId] &&
+          this.prevProdLocQty[productId][locationId]
+        ) {
+          const pqty = this.prevProdLocQty[productId][locationId]["qty"];
+          if (qtys.qty != pqty) {
+            finalQty = qtys.qty;
+          }
+        } else {
+          if (qtys.qty > 0) {
+            finalQty = qtys.qty;
+          }
+        }
+        if (finalQty != null) {
+          if (changedQtys[productId]) {
+            changedQtys[productId][locationId] = { qty: qtys.qty };
+          } else {
+            changedQtys[productId] = {
+              [locationId]: { qty: qtys.qty },
+            };
+          }
+        }
+      });
+    });
+
+    return changedQtys;
+  };
+
+  getPoPostData = () => {
+    const locPo = this.state.locPo;
+
+    let changedPos = {};
+    _.map(locPo, (po, locationId) => {
+      let finalPo = null;
+
+      if (this.prevLocPo[locationId]) {
+        const ppo = this.prevLocPo[locationId];
+        if (po != ppo) {
+          finalPo = po;
+        }
+      } else {
+        if (po != "") {
+          finalPo = po;
+        }
+      }
+      if (finalPo != null) {
+        changedPos[locationId] = po;
+      }
+    });
+
+    return changedPos;
+  };
+
+  updateOrder = () => {
+    const postQtyData = this.getQtyPostData();
+    const postPoData = this.getPoPostData();
+    testUpdateQtys({ qty: postQtyData, po: postPoData });
+  };
+
+  /**
+   * Events
+   */
   testClick = (e) => {
     e.preventDefault();
-    this.generateTotals();
+    getTest(this.getProductPostData());
   };
 
+  testProductClick = (e) => {
+    e.preventDefault();
+    getTestProducts(this.getProductPostData());
+  };
+
+  testLocationClick = (e) => {
+    e.preventDefault();
+    getTestLocations(this.getLocationPostData());
+  };
+
+  handleProductPagination = (pageNumber) => {
+    getProducts(pageNumber, this.state.productsPagination.limit).then(
+      (data) => {
+        this.setState({ products: _.mapKeys(data.products, "entity_id") });
+
+        this.setState({
+          productsPagination: {
+            limit: data.limit,
+            page: data.page,
+            totalPage: data.total,
+          },
+        });
+      }
+    );
+  };
+
+  handleLocationPagination = (pageNumber) => {
+    getLocations(pageNumber, this.state.locationsPagination.limit).then(
+      (data) => {
+        this.setState({ locations: _.mapKeys(data.locations, "id") });
+        this.setState({
+          locationsPagination: {
+            limit: data.limit,
+            page: data.page,
+            totalPage: data.total,
+          },
+        });
+      }
+    );
+  };
+
+  /**
+   * Hooks
+   */
   componentDidMount = () => {
     let promise1 = new Promise((resolve, reject) => {
       getProdLocQty().then((data) => {
         this.setState({ prodLocQty: data.qty, locPo: data.po });
+        this.prevProdLocQty = _.cloneDeep(data.qty);
+        this.prevLocPo = _.cloneDeep(data.po);
+
         if (data) {
           resolve(data);
         }
@@ -296,50 +479,27 @@ class MainForm extends React.Component {
       });
   };
 
-  handleProductPagination = (pageNumber) => {
-    getProducts(pageNumber, this.state.productsPagination.limit).then(
-      (data) => {
-        this.setState({ products: _.mapKeys(data.products, "entity_id") });
-
-        this.setState({
-          productsPagination: {
-            limit: data.limit,
-            page: data.page,
-            totalPage: data.total,
-          },
-        });
-      }
-    );
-  };
-
-  handleLocationPagination = (pageNumber) => {
-    getLocations(pageNumber, this.state.locationsPagination.limit).then(
-      (data) => {
-        this.setState({ locations: _.mapKeys(data.locations, "id") });
-        this.setState({
-          locationsPagination: {
-            limit: data.limit,
-            page: data.page,
-            totalPage: data.total,
-          },
-        });
-      }
-    );
-  };
-
   render() {
     if (this.state.isLoading) return <div>Loading...</div>;
-    // console.log(this.state.locations);
 
     return (
       <div>
+        <button onClick={this.testClick}>Test</button>
+        <button onClick={this.testProductClick}>Test Product</button>
+        <button onClick={this.testLocationClick}>Test Location</button>
         <div className="multishipping_cart_wrapper">
           <div className="multishipping_cart_header" style={{ top: 0 }}>
-            <ProductFilters />
+            <ProductFilters
+              filters={this.state.productFilters}
+              updateFilter={this.updateProductFilter}
+            />
             <LocationFilters
               locPo={this.state.locPo}
+              prevLocPo={this.prevLocPo}
               locations={this.state.locations}
               changePO={this.setPO}
+              filters={this.state.locationFilters}
+              updateFilter={this.updateLocationFilter}
             />
             <div className="address_list_total table_grand_total_by_sku">
               <div className="total_label">Extended</div>
@@ -366,7 +526,6 @@ class MainForm extends React.Component {
 
             <div className="address_list_qty">
               <div className="location_list_qty_table_wrapper">
-                <div className="arrows prev disabled">P</div>
                 <div className="address_list_slider">
                   <div
                     className="address_list_qty_table by_sku_locations_table qty_manager table"
@@ -394,22 +553,12 @@ class MainForm extends React.Component {
                     )}
                   </div>
                 </div>
-                <div className="arrows next disabled">N</div>
               </div>
             </div>
 
             <div className="address_list_total table_grand_total_by_sku">
               <div id="table_grand_total_by_sku">
                 {this.renderProductTotals()}
-                {/* <div className="total_row" data-pid="6000">
-                  $0.00
-                </div>
-                <div className="total_row" data-pid="7783">
-                  $243.00
-                </div>
-                <div className="total_row" data-pid="7762">
-                  $128.00
-                </div> */}
               </div>
             </div>
           </div>
@@ -430,7 +579,6 @@ class MainForm extends React.Component {
 
             <div className="address_list_qty">
               <div className="location_list_qty_table_wrapper">
-                <div className="arrows prev disabled">P</div>
                 <div className="address_list_slider">
                   <div className="address_list_qty_table by_sku_locations_table table">
                     <div className="table-body" id="location_total_by_sku">
@@ -440,7 +588,6 @@ class MainForm extends React.Component {
                     </div>
                   </div>
                 </div>
-                <div className="arrows next disabled">N</div>
               </div>
             </div>
 
@@ -554,8 +701,9 @@ class MainForm extends React.Component {
 
               <div className="row full-total action-buttons sticky-bottom">
                 <button
-                  className="round-but active-but update_order_but disabled_but"
+                  className="round-but active-but update_order_but"
                   id="update_order"
+                  onClick={this.updateOrder}
                 >
                   Update Order
                 </button>

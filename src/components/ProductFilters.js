@@ -1,6 +1,65 @@
 import React from "react";
+import { getFilterFieldsData } from "../helpers/dataHelper";
+import Select from "react-select";
 
 class ProductFilters extends React.Component {
+  renderCategoryFilter = () => {
+    const categories = getFilterFieldsData("categories");
+    return (
+      <Select
+        isMulti
+        placeholder="Categories"
+        className="basic-multi-select"
+        options={categories}
+        isClearable={true}
+        getOptionValue={(option) => option.id}
+        value={this.props.filters.categories}
+        onChange={(selectedOption) => {
+          console.log(selectedOption);
+          this.props.updateFilter("categories", selectedOption);
+        }}
+      />
+    );
+  };
+
+  renderMakeFilter = () => {
+    const makes = getFilterFieldsData("makes");
+    return makes.map((make) => (
+      <option key={`mk${make.id}`} value={make.id}>
+        {make.label}
+      </option>
+    ));
+  };
+
+  renderModelFilter = () => {
+    const models = getFilterFieldsData("models");
+    return models.map((model) => (
+      <option key={`md${model.id}`} value={model.id}>
+        {model.label}
+      </option>
+    ));
+  };
+
+  renderBrandFilter = () => {
+    const brands = getFilterFieldsData("brands");
+    return brands.map((brand) => (
+      <option key={`br${brand.id}`} value={brand.id}>
+        {brand.label}
+      </option>
+    ));
+  };
+
+  renderKeywordFilter = () => {
+    return (
+      <input
+        type="text"
+        placeholder="Search Products"
+        value={this.props.filters.kw}
+        onChange={(event) => this.props.updateFilter("kw", event.target.value)}
+      />
+    );
+  };
+
   render() {
     return (
       <div className="address_list_product table">
@@ -8,43 +67,42 @@ class ProductFilters extends React.Component {
           <div className="one_filter_cart_title">Products</div>
           <div className="one_filter_cart product_filter_header">
             <div className="category-list" style={{ paddingTop: 0 }}>
-              <select id="filter_by_category" multiple="" aria-hidden="true">
-                <option value="414">Audio</option>
-                <option value="480">Cables</option>
-                <option value="7280">Car Mounts</option>
-                <option value="450">Cases</option>
-                <option value="567">Mount</option>
-                <option value="393">Power</option>
-                <option value="462">Screen Protection</option>
-              </select>
+              {this.renderCategoryFilter()}
             </div>
             <div className="product-attr-list">
-              <select id="filter_by_make" aria-hidden="true">
+              <select
+                onChange={(event) =>
+                  this.props.updateFilter("make", event.target.value)
+                }
+                value={this.props.filters.make}
+              >
                 <option value="0">Make</option>
-                <option value="24">Apple</option>
-                <option value="279">Samsung</option>
+                {this.renderMakeFilter()}
               </select>
             </div>
             <div className="product-attr-list">
-              <select id="filter_by_model" disabled="" aria-hidden="true">
+              <select
+                onChange={(event) =>
+                  this.props.updateFilter("model", event.target.value)
+                }
+                value={this.props.filters.model}
+              >
                 <option value="0">Model</option>
+                {this.renderModelFilter()}
               </select>
             </div>
             <div className="filter_product_search_wrapper">
-              <input
-                type="text"
-                name="search"
-                placeholder="Search Products"
-                id="search_products"
-              />
+              {this.renderKeywordFilter()}
             </div>
             <div className="product-attr-list">
-              <select id="filter_by_brand" aria-hidden="true">
-                <option value="0">Brands</option>
-                <option value="399">NCredible</option>
-                <option value="432">Nimbus9</option>
-                <option value="279">PureGear</option>
-                <option value="1087">Tech21</option>
+              <select
+                onChange={(event) =>
+                  this.props.updateFilter("brand", event.target.value)
+                }
+                value={this.props.filters.brand}
+              >
+                <option value="0">Brand</option>
+                {this.renderBrandFilter()}
               </select>
             </div>
           </div>

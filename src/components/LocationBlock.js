@@ -29,7 +29,7 @@ class LocationBlock extends React.Component {
             type="text"
             size="20"
             placeholder="PO#"
-            className={this.props.po != "" ? "has-qty" : ""}
+            className={this.props.cssClass}
             value={this.props.po}
             onChange={(event) => {
               this.props.changePO(location.id, event.target.value.trim());
