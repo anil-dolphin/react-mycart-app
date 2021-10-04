@@ -191,15 +191,48 @@ class MainForm extends React.Component {
 
   setProductQuantity = (data) => {
     const { locations } = this.state;
-    return Object.values(locations).map((location) => {
-      this.setQty(data.productId, location.id, data.qty);
+    const currentProdLocQty = this.state.prodLocQty;
+    const qtyToSet = data.qty;
+    const products = this.state.products;
+    const product = products[data.productId];
+    const maxAllowedQty =
+      Math.min(product.qty, product.max_sale_qty) > 1000
+        ? 1000
+        : Math.min(product.qty, product.max_sale_qty);
+
+    let qtyArr = [];
+    let qtySum = 0;
+    let interval =
+      Math.ceil(maxAllowedQty / qtyToSet) > _.size(locations)
+        ? _.size(locations)
+        : Math.ceil(maxAllowedQty / qtyToSet);
+    for (let i = 0; i < interval; i++) {
+      let qty = qtyToSet;
+      qtySum += qtyToSet;
+      if (qtySum > maxAllowedQty) {
+        qty = maxAllowedQty - (qtySum - qtyToSet);
+      }
+      qtyArr.push(qty);
+    }
+
+    currentProdLocQty[data.productId] = {};
+    let cnt = 0;
+    Object.values(locations).map((location) => {
+      let qty = qtyArr[cnt] !== undefined ? qtyArr[cnt] : 0;
+      cnt++;
+      currentProdLocQty[data.productId][location.id] = { qty: qty };
+    });
+
+    this.setState({ prodLocQty: currentProdLocQty }, () => {
+      this.generateTotals();
     });
   };
 
   removeProductQuantity = (productId) => {
-    const { locations } = this.state;
-    return Object.values(locations).map((location) => {
-      this.setQty(productId, location.id, 0);
+    const currentProdLocQty = this.state.prodLocQty;
+    delete currentProdLocQty[productId];
+    this.setState({ prodLocQty: currentProdLocQty }, () => {
+      this.generateTotals();
     });
   };
 
@@ -239,18 +272,60 @@ class MainForm extends React.Component {
     });
   };
 
+  getQtyWithCap = (productId, locationId, qty) => {
+    const products = this.state.products;
+    const productsTotal = this.state.total.products;
+    const prodLocQty = this.state.prodLocQty;
+    const product = products[productId];
+    let qtyAdded = 0;
+    if (productsTotal[productId] !== undefined) {
+      qtyAdded = productsTotal[productId].qty;
+    }
+
+    let cellQty =
+      prodLocQty[productId] &&
+      prodLocQty[productId][locationId] &&
+      prodLocQty[productId][locationId]["qty"]
+        ? prodLocQty[productId][locationId]["qty"]
+        : 0;
+    const productsTotalWoCell = qtyAdded - cellQty;
+    const productsTotalTobe = productsTotalWoCell + qty;
+
+    let qtyToSet = qty;
+
+    const maxAllowedQty =
+      Math.min(product.qty, product.max_sale_qty) > 1000
+        ? 1000
+        : Math.min(product.qty, product.max_sale_qty);
+
+    if (productsTotalTobe > maxAllowedQty) {
+      qtyToSet = maxAllowedQty - productsTotalWoCell;
+    }
+
+    console.log(
+      qty,
+      cellQty,
+      productsTotalWoCell,
+      productsTotalTobe,
+      maxAllowedQty,
+      qtyToSet
+    );
+
+    return parseInt(qtyToSet, 10);
+  };
+
   setQty = (productId, locationId, qty) => {
+    const qtyToSet = this.getQtyWithCap(productId, locationId, qty);
     const prodLocQty = this.state.prodLocQty;
 
     if (!prodLocQty[productId]) {
       prodLocQty[productId] = {
-        [locationId]: { qty: parseInt(qty, 10) },
+        [locationId]: { qty: qtyToSet },
       };
     } else {
-      prodLocQty[productId][locationId] = { qty: parseInt(qty, 10) };
+      prodLocQty[productId][locationId] = { qty: qtyToSet };
     }
-    this.setState({ prodLocQty: prodLocQty });
-    this.generateTotals();
+    this.setState({ prodLocQty: prodLocQty }, () => this.generateTotals());
   };
 
   setPO = (locationId, po) => {
@@ -259,11 +334,11 @@ class MainForm extends React.Component {
     this.setState({ locPo: locPo });
   };
 
-  updateProductFilter = async (type, value) => {
+  updateProductFilter = async (type, value, refresh = true) => {
     const filters = this.state.productFilters;
     filters[type] = value;
     this.setState({ productFilters: filters });
-    await this.fetchProducts();
+    if (refresh) await this.fetchProducts();
   };
 
   getProductPostData = () => {
@@ -281,22 +356,14 @@ class MainForm extends React.Component {
       page: this.state.productsPagination.page,
     };
 
-    console.log(productPostData);
     return productPostData;
   };
 
-  updateLocationFilter = async (type, value) => {
-    this.setLoaderState({
-      show: true,
-      content: <div>Loading Locations...</div>,
-    });
+  updateLocationFilter = async (type, value, refresh = true) => {
     const filters = this.state.locationFilters;
     filters[type] = value;
     this.setState({ locationFilters: filters });
-    await this.fetchLocations();
-    this.setLoaderState({
-      show: false,
-    });
+    if (refresh) await this.fetchLocations();
   };
 
   getLocationPostData = () => {

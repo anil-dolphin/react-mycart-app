@@ -1,8 +1,32 @@
 import React from "react";
 import { getFilterFieldsData } from "../helpers/dataHelper";
 import Select from "react-select";
+import _ from "lodash";
 
 class ProductFilters extends React.Component {
+  getFilteredModels = () => {
+    const makeId = this.props.filters.make;
+    let allowedModels = [];
+    if (makeId && makeId != 0) {
+      let models = getFilterFieldsData("models");
+      let makeModelRel = getFilterFieldsData("makeModelRel");
+      let mappedModels = _.mapKeys(models, "id");
+      let allowedModelIds = [];
+
+      if (makeModelRel[makeId] !== undefined) {
+        allowedModelIds = makeModelRel[makeId];
+      }
+      if (!_.isEmpty(allowedModelIds)) {
+        allowedModelIds.map((allowedModelId) => {
+          if (mappedModels[allowedModelId] !== undefined) {
+            allowedModels.push(mappedModels[allowedModelId]);
+          }
+        });
+      }
+    }
+    return allowedModels;
+  };
+
   renderCategoryFilter = () => {
     const categories = getFilterFieldsData("categories");
     return (
@@ -15,7 +39,6 @@ class ProductFilters extends React.Component {
         getOptionValue={(option) => option.id}
         value={this.props.filters.categories}
         onChange={(selectedOption) => {
-          console.log(selectedOption);
           this.props.updateFilter("categories", selectedOption);
         }}
       />
@@ -23,6 +46,7 @@ class ProductFilters extends React.Component {
   };
 
   renderMakeFilter = () => {
+    // this.props.updateFilter("model", 0, false);
     const makes = getFilterFieldsData("makes");
     return makes.map((make) => (
       <option key={`mk${make.id}`} value={make.id}>
@@ -32,7 +56,7 @@ class ProductFilters extends React.Component {
   };
 
   renderModelFilter = () => {
-    const models = getFilterFieldsData("models");
+    const models = this.getFilteredModels();
     return models.map((model) => (
       <option key={`md${model.id}`} value={model.id}>
         {model.label}
@@ -76,9 +100,10 @@ class ProductFilters extends React.Component {
             </div>
             <div className="product-attr-list">
               <select
-                onChange={(event) =>
-                  this.props.updateFilter("make", event.target.value)
-                }
+                onChange={(event) => {
+                  this.props.updateFilter("model", 0, false);
+                  this.props.updateFilter("make", event.target.value);
+                }}
                 value={this.props.filters.make}
               >
                 <option value="0">Make</option>
@@ -89,6 +114,9 @@ class ProductFilters extends React.Component {
               <select
                 onChange={(event) =>
                   this.props.updateFilter("model", event.target.value)
+                }
+                disabled={
+                  !(this.props.filters.make && this.props.filters.make != 0)
                 }
                 value={this.props.filters.model}
               >
