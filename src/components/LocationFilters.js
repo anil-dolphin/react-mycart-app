@@ -56,30 +56,36 @@ class LocationFilters extends React.Component {
   };
 
   renderLocations() {
-    return Object.values(this.props.locations).map((location) => {
-      const po = this.getLocationPo(location.id);
-      const { prevLocPo } = this.props;
-      let ppo = null,
-        cssClass = "";
+    const { locations } = this.props;
 
-      cssClass = po != "" ? "has-po" : "";
-      if (prevLocPo[location.id]) {
-        ppo = prevLocPo[location.id];
-        cssClass = po != ppo ? cssClass + " po-changed" : cssClass;
-      } else {
-        cssClass = po != "" ? "has-po po-changed" : "";
-      }
+    if (_.isEmpty(locations)) {
+      return <div className="no-data-found">No locations found</div>;
+    } else {
+      return Object.values(this.props.locations).map((location) => {
+        const po = this.getLocationPo(location.id);
+        const { prevLocPo } = this.props;
+        let ppo = null,
+          cssClass = "";
 
-      return (
-        <LocationBlock
-          po={po}
-          cssClass={cssClass}
-          changePO={this.props.changePO}
-          location={location}
-          key={location.id}
-        />
-      );
-    });
+        cssClass = po != "" ? "has-po" : "";
+        if (prevLocPo[location.id]) {
+          ppo = prevLocPo[location.id];
+          cssClass = po != ppo ? cssClass + " po-changed" : cssClass;
+        } else {
+          cssClass = po != "" ? "has-po po-changed" : "";
+        }
+
+        return (
+          <LocationBlock
+            po={po}
+            cssClass={cssClass}
+            changePO={this.props.changePO}
+            location={location}
+            key={location.id}
+          />
+        );
+      });
+    }
   }
 
   getLocationPo = (locationId) => {

@@ -2,6 +2,7 @@ import React from "react";
 import ProductFilters from "./ProductFilters";
 import LocationFilters from "./LocationFilters";
 import ProductBlock from "./ProductBlock";
+import Loader from "./Loader";
 import Pagination from "react-js-pagination";
 import Pagin from "./pagination";
 import _ from "lodash";
@@ -10,10 +11,8 @@ import {
   getProducts,
   getLocations,
   getProdLocQty,
-  getTest,
-  getTestProducts,
-  getTestLocations,
-  testUpdateQtys,
+  updateQtys,
+  updatePos,
 } from "../helpers/dataHelper";
 import { toCurrency } from "../helpers/utilityHelper";
 
@@ -48,6 +47,11 @@ class MainForm extends React.Component {
       applyQty: false,
       qty: "gtz",
     },
+    loader: {
+      show: false,
+      title: "Please wait",
+      content: "Loading...",
+    },
   };
 
   /**
@@ -57,16 +61,20 @@ class MainForm extends React.Component {
   renderProducts = () => {
     const { products } = this.state;
 
-    return Object.values(products).map((product) => {
-      return (
-        <ProductBlock
-          product={product}
-          setQuantity={this.setProductQuantity}
-          removeQuantity={this.removeProductQuantity}
-          key={product.entity_id}
-        />
-      );
-    });
+    if (_.isEmpty(products)) {
+      return <div className="no-data-found">No products found</div>;
+    } else {
+      return Object.values(products).map((product) => {
+        return (
+          <ProductBlock
+            product={product}
+            setQuantity={this.setProductQuantity}
+            removeQuantity={this.removeProductQuantity}
+            key={product.entity_id}
+          />
+        );
+      });
+    }
   };
 
   renderQtyInputsRows = () => {
@@ -251,11 +259,11 @@ class MainForm extends React.Component {
     this.setState({ locPo: locPo });
   };
 
-  updateProductFilter = (type, value) => {
+  updateProductFilter = async (type, value) => {
     const filters = this.state.productFilters;
     filters[type] = value;
     this.setState({ productFilters: filters });
-    this.getProductPostData();
+    await this.fetchProducts();
   };
 
   getProductPostData = () => {
@@ -273,14 +281,22 @@ class MainForm extends React.Component {
       page: this.state.productsPagination.page,
     };
 
+    console.log(productPostData);
     return productPostData;
   };
 
-  updateLocationFilter = (type, value) => {
+  updateLocationFilter = async (type, value) => {
+    this.setLoaderState({
+      show: true,
+      content: <div>Loading Locations...</div>,
+    });
     const filters = this.state.locationFilters;
     filters[type] = value;
     this.setState({ locationFilters: filters });
-    this.getLocationPostData();
+    await this.fetchLocations();
+    this.setLoaderState({
+      show: false,
+    });
   };
 
   getLocationPostData = () => {
@@ -321,10 +337,10 @@ class MainForm extends React.Component {
         }
         if (finalQty != null) {
           if (changedQtys[productId]) {
-            changedQtys[productId][locationId] = { qty: qtys.qty };
+            changedQtys[productId][locationId] = qtys.qty;
           } else {
             changedQtys[productId] = {
-              [locationId]: { qty: qtys.qty },
+              [locationId]: qtys.qty,
             };
           }
         }
@@ -359,82 +375,160 @@ class MainForm extends React.Component {
     return changedPos;
   };
 
-  updateOrder = () => {
+  updateOrder = async () => {
     const postQtyData = this.getQtyPostData();
     const postPoData = this.getPoPostData();
-    testUpdateQtys({ qty: postQtyData, po: postPoData });
+    let shouldLoadProdLocQty = false;
+    if (!_.isEmpty(postQtyData)) {
+      shouldLoadProdLocQty = true;
+      this.setLoaderState({
+        show: true,
+        content: <div>Updating Quantities...</div>,
+      });
+      await updateQtys({ cart: postQtyData });
+      this.setLoaderState({
+        show: false,
+      });
+    }
+    if (!_.isEmpty(postPoData)) {
+      shouldLoadProdLocQty = true;
+      this.setLoaderState({
+        show: true,
+        content: <div>Updating POs...</div>,
+      });
+      await updatePos({ po: postPoData });
+      this.setLoaderState({
+        show: false,
+      });
+    }
+
+    if (shouldLoadProdLocQty) {
+      this.setLoaderState({
+        show: true,
+        content: <div>Loading Cart...</div>,
+      });
+      await this.fetchProdLocQty();
+      this.setLoaderState({
+        show: false,
+      });
+    }
   };
 
   /**
    * Events
    */
-  testClick = (e) => {
-    e.preventDefault();
-    getTest(this.getProductPostData());
+
+  handleProductPagination = async (pageNumber) => {
+    const prodsPag = this.state.productsPagination;
+    prodsPag.page = pageNumber;
+    this.setState({ productsPagination: prodsPag });
+    await this.fetchProducts();
   };
 
-  testProductClick = (e) => {
-    e.preventDefault();
-    getTestProducts(this.getProductPostData());
+  handleLocationPagination = async (pageNumber) => {
+    const locsPag = this.state.locationsPagination;
+    locsPag.page = pageNumber;
+    this.setState({ locationsPagination: locsPag });
+    await this.fetchLocations();
   };
 
-  testLocationClick = (e) => {
-    e.preventDefault();
-    getTestLocations(this.getLocationPostData());
+  setLoaderState = (loaderData) => {
+    const { loader } = this.state;
+    loaderData = { ...loader, ...loaderData };
+    // loaderData.show = show;
+    // loaderData.title = !_.isNull(title) ? title : loaderData.title;
+    // loaderData.content = !_.isNull(content) ? content : loaderData.content;
+
+    this.setState({ loader: loaderData });
   };
 
-  handleProductPagination = (pageNumber) => {
-    getProducts(pageNumber, this.state.productsPagination.limit).then(
-      (data) => {
-        this.setState({ products: _.mapKeys(data.products, "entity_id") });
-
-        this.setState({
-          productsPagination: {
-            limit: data.limit,
-            page: data.page,
-            totalPage: data.total,
-          },
-        });
-      }
-    );
+  fetchProdLocQty = async () => {
+    // this.setLoaderState({
+    //   show: true,
+    //   content: <strong>Loading cart data...</strong>,
+    // });
+    await getProdLocQty().then((data) => {
+      this.setState({ prodLocQty: data.qty, locPo: data.po });
+      this.prevProdLocQty = _.cloneDeep(data.qty);
+      this.prevLocPo = _.cloneDeep(data.po);
+    });
   };
 
-  handleLocationPagination = (pageNumber) => {
-    getLocations(pageNumber, this.state.locationsPagination.limit).then(
-      (data) => {
-        this.setState({ locations: _.mapKeys(data.locations, "id") });
-        this.setState({
-          locationsPagination: {
-            limit: data.limit,
-            page: data.page,
-            totalPage: data.total,
-          },
-        });
-      }
-    );
+  fetchProducts = async () => {
+    this.setLoaderState({
+      show: true,
+      content: <div>Loading Products...</div>,
+    });
+    await getProducts(this.getProductPostData()).then((data) => {
+      this.setState({ products: _.mapKeys(data.products, "entity_id") });
+      this.setState({
+        productsPagination: {
+          limit: data.limit,
+          page: data.page,
+          totalPage: data.total,
+        },
+      });
+      this.setLoaderState({
+        show: false,
+      });
+    });
+  };
+
+  fetchLocations = async () => {
+    this.setLoaderState({
+      show: true,
+      content: <div>Loading Locations...</div>,
+    });
+    await getLocations(this.getLocationPostData()).then((data) => {
+      this.setState({ locations: _.mapKeys(data.locations, "id") });
+      this.setState({
+        locationsPagination: {
+          limit: data.limit,
+          page: data.page,
+          totalPage: data.total,
+        },
+      });
+      this.setLoaderState({
+        show: false,
+      });
+    });
   };
 
   /**
    * Hooks
    */
   componentDidMount = () => {
-    let promise1 = new Promise((resolve, reject) => {
+    let promiseProdLocQty = new Promise((resolve, reject) => {
       getProdLocQty().then((data) => {
         this.setState({ prodLocQty: data.qty, locPo: data.po });
+        this.setLoaderState({ content: <div>Loading Cart...</div> });
         this.prevProdLocQty = _.cloneDeep(data.qty);
         this.prevLocPo = _.cloneDeep(data.po);
-
         if (data) {
           resolve(data);
         }
       });
     });
-    let promise2 = new Promise((resolve, reject) => {
-      getLocations(
-        this.state.locationsPagination.page,
-        this.state.locationsPagination.limit
-      ).then((data) => {
+    let promiseProducts = new Promise((resolve, reject) => {
+      getProducts(this.getProductPostData()).then((data) => {
+        this.setState({ products: _.mapKeys(data.products, "entity_id") });
+        this.setLoaderState({ content: <div>Loading Products...</div> });
+        this.setState({
+          productsPagination: {
+            limit: data.limit,
+            page: data.page,
+            totalPage: data.total,
+          },
+        });
+        if (data) {
+          resolve(data);
+        }
+      });
+    });
+    let promiseLocations = new Promise((resolve, reject) => {
+      getLocations(this.getLocationPostData()).then((data) => {
         this.setState({ locations: _.mapKeys(data.locations, "id") });
+        this.setLoaderState({ content: <div>Loading Locations...</div> });
         this.setState({
           locationsPagination: {
             limit: data.limit,
@@ -447,48 +541,41 @@ class MainForm extends React.Component {
         }
       });
     });
-    let promise3 = new Promise((resolve, reject) => {
-      getProducts(
-        this.state.productsPagination.page,
-        this.state.productsPagination.limit
-      ).then((data) => {
-        this.setState({ products: _.mapKeys(data.products, "entity_id") });
-        this.setState({
-          productsPagination: {
-            limit: data.limit,
-            page: data.page,
-            totalPage: data.total,
-          },
-        });
 
-        if (data) {
-          resolve(data);
-        }
-      });
-    });
-
-    Promise.all([promise1, promise2, promise3])
-      .then((values) => {
-        if (values) {
-          this.setState({ isLoading: false });
+    this.setLoaderState({ show: true });
+    Promise.all([promiseProdLocQty, promiseProducts, promiseLocations])
+      .then(([prodLocQty, products, locations]) => {
+        if (_.isEmpty(products.products) || _.isEmpty(locations.locations)) {
+        } else {
           this.generateTotals();
         }
+
+        this.setState({ isLoading: false });
+        setTimeout(() => {
+          this.setLoaderState({ show: false });
+        }, 500);
       })
       .catch(function (err) {
         console.log("Error", err);
       });
   };
 
+  getTestCont = () => {
+    return <div>LoadinggetTestCont...</div>;
+  };
+
   render() {
-    if (this.state.isLoading) return <div>Loading...</div>;
+    if (this.state.isLoading)
+      return (
+        <div>
+          <Loader loaderData={this.state.loader}></Loader>
+        </div>
+      );
 
     return (
       <div>
-        <button onClick={this.testClick}>Test</button>
-        <button onClick={this.testProductClick}>Test Product</button>
-        <button onClick={this.testLocationClick}>Test Location</button>
         <div className="multishipping_cart_wrapper">
-          <div className="multishipping_cart_header" style={{ top: 0 }}>
+          <div className="multishipping_cart_header">
             <ProductFilters
               filters={this.state.productFilters}
               updateFilter={this.updateProductFilter}
@@ -511,17 +598,18 @@ class MainForm extends React.Component {
               <div className="table-body" id="by_sku_product">
                 {this.renderProducts()}
               </div>
-              {this.state.productsPagination.totalPage > 10 && (
-                <div className="pagination">
-                  <Pagination
-                    activePage={this.state.productsPagination.page}
-                    itemsCountPerPage={this.state.productsPagination.limit}
-                    totalItemsCount={this.state.productsPagination.totalPage}
-                    pageRangeDisplayed={5}
-                    onChange={this.handleProductPagination}
-                  />
-                </div>
-              )}
+              {!_.isEmpty(this.state.products) &&
+                this.state.productsPagination.totalPage > 10 && (
+                  <div className="pagination">
+                    <Pagination
+                      activePage={this.state.productsPagination.page}
+                      itemsCountPerPage={this.state.productsPagination.limit}
+                      totalItemsCount={this.state.productsPagination.totalPage}
+                      pageRangeDisplayed={5}
+                      onChange={this.handleProductPagination}
+                    />
+                  </div>
+                )}
             </div>
 
             <div className="address_list_qty">
@@ -530,7 +618,6 @@ class MainForm extends React.Component {
                   <div
                     className="address_list_qty_table by_sku_locations_table qty_manager table"
                     data-page="0"
-                    style={{ left: 0, width: "100%" }}
                   >
                     <div className="table-body" id="location_qty_by_sku">
                       {this.renderQtyInputsRows()}
@@ -563,10 +650,7 @@ class MainForm extends React.Component {
             </div>
           </div>
 
-          <div
-            className="multishipping_cart_footer sticky-bottom"
-            style={{ width: "1570px", padding: "0px 170px" }}
-          >
+          <div className="multishipping_cart_footer sticky-bottom">
             <div className="address_list_product table">
               <div className="table-body">
                 <div className="row-table table-header">
@@ -669,32 +753,22 @@ class MainForm extends React.Component {
           <div className="total_block">
             <div className="total_block_data">
               <div className="row">
-                <span className="label" style={{ opacity: 0.3 }}>
-                  Subtotal:
-                </span>
-                <span
-                  className="value"
-                  id="subtotal_val"
-                  style={{ opacity: 0.3 }}
-                >
+                <span className="label">Subtotal:</span>
+                <span className="value" id="subtotal_val">
                   $527.00
                 </span>
               </div>
 
               <div className="row">
-                <span className="label" style={{ opacity: 0.3 }}>
-                  Tax:
-                </span>
-                <span className="value" id="tax_val" style={{ opacity: 0.3 }}>
+                <span className="label">Tax:</span>
+                <span className="value" id="tax_val">
                   $0.00
                 </span>
               </div>
 
               <div className="row full-total">
-                <span className="label" style={{ opacity: 0.3 }}>
-                  Total:
-                </span>
-                <span className="value" id="total_val" style={{ opacity: 0.3 }}>
+                <span className="label">Total:</span>
+                <span className="value" id="total_val">
                   $527.00
                 </span>
               </div>
@@ -702,7 +776,10 @@ class MainForm extends React.Component {
               <div className="row full-total action-buttons sticky-bottom">
                 <button
                   className="round-but active-but update_order_but"
-                  id="update_order"
+                  disabled={
+                    _.isEmpty(this.getQtyPostData()) &&
+                    _.isEmpty(this.getPoPostData())
+                  }
                   onClick={this.updateOrder}
                 >
                   Update Order
@@ -718,6 +795,7 @@ class MainForm extends React.Component {
             </div>
           </div>
         </div>
+        <Loader loaderData={this.state.loader}></Loader>
       </div>
     );
   }

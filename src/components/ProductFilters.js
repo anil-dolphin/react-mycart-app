@@ -55,7 +55,12 @@ class ProductFilters extends React.Component {
         type="text"
         placeholder="Search Products"
         value={this.props.filters.kw}
-        onChange={(event) => this.props.updateFilter("kw", event.target.value)}
+        onChange={(event) => {
+          //console.log(event.charCode);
+          //if (event.charCode >= 48 && event.charCode <= 57) {
+          this.props.updateFilter("kw", event.target.value);
+          //}
+        }}
       />
     );
   };
@@ -108,11 +113,7 @@ class ProductFilters extends React.Component {
           </div>
           <div className="one_filter_cart location_qty_filter_header">
             <div className="location_list_clear_filter">
-              <a
-                href="javascript:"
-                id="clear_filters"
-                className="simple-but red-but"
-              >
+              <a href="#" id="clear_filters" className="simple-but red-but">
                 Clear Filters
               </a>
             </div>
