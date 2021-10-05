@@ -157,3 +157,8 @@ input[type="search"]::-webkit-search-results-decoration {
   text-align: center;
   padding: 15px;
 }
+.loader .content .footer {
+  margin-top: 15px;
+  text-align: center;
+  padding-top: 15px;
+}

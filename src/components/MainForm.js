@@ -21,6 +21,9 @@ class MainForm extends React.Component {
     super(props);
     this.prevProdLocQty = {};
     this.prevLocPo = {};
+
+    this.stickyFooter = React.createRef();
+    this.refMyCartBody = React.createRef();
   }
 
   state = {
@@ -52,6 +55,8 @@ class MainForm extends React.Component {
       title: "Please wait",
       content: "Loading...",
     },
+    stickHeader: false,
+    stickFooter: false,
   };
 
   /**
@@ -68,8 +73,8 @@ class MainForm extends React.Component {
         return (
           <ProductBlock
             product={product}
-            setQuantity={this.setProductQuantity}
-            removeQuantity={this.removeProductQuantity}
+            setQuantity={this.setQtyMultiple}
+            removeQuantity={this.removeQtyMultiple}
             key={product.entity_id}
           />
         );
@@ -189,53 +194,6 @@ class MainForm extends React.Component {
    * Operations
    */
 
-  setProductQuantity = (data) => {
-    const { locations } = this.state;
-    const currentProdLocQty = this.state.prodLocQty;
-    const qtyToSet = data.qty;
-    const products = this.state.products;
-    const product = products[data.productId];
-    const maxAllowedQty =
-      Math.min(product.qty, product.max_sale_qty) > 1000
-        ? 1000
-        : Math.min(product.qty, product.max_sale_qty);
-
-    let qtyArr = [];
-    let qtySum = 0;
-    let interval =
-      Math.ceil(maxAllowedQty / qtyToSet) > _.size(locations)
-        ? _.size(locations)
-        : Math.ceil(maxAllowedQty / qtyToSet);
-    for (let i = 0; i < interval; i++) {
-      let qty = qtyToSet;
-      qtySum += qtyToSet;
-      if (qtySum > maxAllowedQty) {
-        qty = maxAllowedQty - (qtySum - qtyToSet);
-      }
-      qtyArr.push(qty);
-    }
-
-    currentProdLocQty[data.productId] = {};
-    let cnt = 0;
-    Object.values(locations).map((location) => {
-      let qty = qtyArr[cnt] !== undefined ? qtyArr[cnt] : 0;
-      cnt++;
-      currentProdLocQty[data.productId][location.id] = { qty: qty };
-    });
-
-    this.setState({ prodLocQty: currentProdLocQty }, () => {
-      this.generateTotals();
-    });
-  };
-
-  removeProductQuantity = (productId) => {
-    const currentProdLocQty = this.state.prodLocQty;
-    delete currentProdLocQty[productId];
-    this.setState({ prodLocQty: currentProdLocQty }, () => {
-      this.generateTotals();
-    });
-  };
-
   generateTotals = () => {
     const { prodLocQty } = this.state;
     const products = this.state.products;
@@ -302,14 +260,14 @@ class MainForm extends React.Component {
       qtyToSet = maxAllowedQty - productsTotalWoCell;
     }
 
-    console.log(
-      qty,
-      cellQty,
-      productsTotalWoCell,
-      productsTotalTobe,
-      maxAllowedQty,
-      qtyToSet
-    );
+    // console.log(
+    //   qty,
+    //   cellQty,
+    //   productsTotalWoCell,
+    //   productsTotalTobe,
+    //   maxAllowedQty,
+    //   qtyToSet
+    // );
 
     return parseInt(qtyToSet, 10);
   };
@@ -325,20 +283,157 @@ class MainForm extends React.Component {
     } else {
       prodLocQty[productId][locationId] = { qty: qtyToSet };
     }
+
+    // if (
+    //   this.prevProdLocQty[productId] === undefined ||
+    //   this.prevProdLocQty[productId][locationId] === undefined
+    // ) {
+    //   if (prodLocQty[productId][locationId]["qty"] == 0) {
+    //     delete prodLocQty[productId][locationId];
+    //   }
+    //   if (_.size(prodLocQty[productId]) == 0) {
+    //     delete prodLocQty[productId];
+    //   }
+    // }
+
     this.setState({ prodLocQty: prodLocQty }, () => this.generateTotals());
+  };
+
+  setQtyMultiple = (data) => {
+    const { locations } = this.state;
+    const currentProdLocQty = this.state.prodLocQty;
+    const qtyToSet = data.qty;
+    const products = this.state.products;
+    const product = products[data.productId];
+    const maxAllowedQty =
+      Math.min(product.qty, product.max_sale_qty) > 1000
+        ? 1000
+        : Math.min(product.qty, product.max_sale_qty);
+
+    let qtyArr = [];
+    let qtySum = 0;
+    let interval =
+      Math.ceil(maxAllowedQty / qtyToSet) > _.size(locations)
+        ? _.size(locations)
+        : Math.ceil(maxAllowedQty / qtyToSet);
+    for (let i = 0; i < interval; i++) {
+      let qty = qtyToSet;
+      qtySum += qtyToSet;
+      if (qtySum > maxAllowedQty) {
+        qty = maxAllowedQty - (qtySum - qtyToSet);
+      }
+      qtyArr.push(qty);
+    }
+
+    currentProdLocQty[data.productId] = {};
+    let cnt = 0;
+    Object.values(locations).map((location) => {
+      let qty = qtyArr[cnt] !== undefined ? qtyArr[cnt] : 0;
+      cnt++;
+      currentProdLocQty[data.productId][location.id] = { qty: qty };
+    });
+
+    this.setState({ prodLocQty: currentProdLocQty }, () => {
+      this.generateTotals();
+    });
+  };
+
+  removeQtyMultiple = (productId) => {
+    const currentProdLocQty = this.state.prodLocQty;
+    delete currentProdLocQty[productId];
+    this.setState({ prodLocQty: currentProdLocQty }, () => {
+      this.generateTotals();
+    });
   };
 
   setPO = (locationId, po) => {
     const locPo = this.state.locPo;
     locPo[locationId] = po;
+    if (this.prevLocPo[locationId] === undefined && po == "")
+      delete locPo[locationId];
+
     this.setState({ locPo: locPo });
   };
 
-  updateProductFilter = async (type, value, refresh = true) => {
-    const filters = this.state.productFilters;
-    filters[type] = value;
-    this.setState({ productFilters: filters });
-    if (refresh) await this.fetchProducts();
+  isUpdatePending = () => {
+    return !(
+      _.isEmpty(this.getQtyPostData()) && _.isEmpty(this.getPoPostData())
+    );
+    // const { prodLocQty } = this.state;
+    // const { locPo } = this.state;
+    // const self = this;
+    // let qtyChanged = false;
+
+    // console.log(self.prevProdLocQty, prodLocQty);
+
+    // _.forEach(prodLocQty, function (locations, productId) {
+    //   _.forEach(locations, function (qtys, locationId) {
+    //     let qty = qtys.qty;
+    //     if (
+    //       (self.prevProdLocQty[productId] === undefined ||
+    //         self.prevProdLocQty[productId][locationId] === undefined ||
+    //         self.prevProdLocQty[productId][locationId]["qty"] != qty) &&
+    //       qty != 0
+    //     ) {
+    //       qtyChanged = true;
+    //       return false;
+    //     }
+    //   });
+    // });
+
+    // return qtyChanged || !_.isEqual(locPo, this.prevLocPo);
+  };
+
+  updateProductFilter = async (type, value) => {
+    if (this.isUpdatePending()) {
+      this.setLoaderState({
+        show: true,
+        title: "Attention",
+        content: (
+          <div>
+            <div>
+              The changes you made in the cart will be lost. Please, click on
+              Update Order before proceeding.
+            </div>
+            <div className="footer">
+              <button
+                class="round-but active-but"
+                type="button"
+                onClick={async () => {
+                  await this.updateOrder();
+                  const filters = this.state.productFilters;
+                  filters[type] = value;
+                  this.setState({ productFilters: filters });
+                  await this.fetchProducts();
+                  this.setLoaderState({
+                    show: false,
+                  });
+                }}
+              >
+                <span>Update and Proceed</span>
+              </button>
+              <button
+                class="round-but"
+                type="button"
+                data-role="action"
+                onClick={() => {
+                  this.setLoaderState({
+                    show: false,
+                  });
+                }}
+              >
+                <span>Cancel</span>
+              </button>
+            </div>
+          </div>
+        ),
+      });
+    } else {
+      const filters = this.state.productFilters;
+      filters[type] = value;
+      this.setState({ productFilters: filters });
+      await this.fetchProducts();
+    }
   };
 
   getProductPostData = () => {
@@ -359,11 +454,56 @@ class MainForm extends React.Component {
     return productPostData;
   };
 
-  updateLocationFilter = async (type, value, refresh = true) => {
-    const filters = this.state.locationFilters;
-    filters[type] = value;
-    this.setState({ locationFilters: filters });
-    if (refresh) await this.fetchLocations();
+  updateLocationFilter = async (type, value) => {
+    if (this.isUpdatePending()) {
+      this.setLoaderState({
+        show: true,
+        title: "Attention",
+        content: (
+          <div>
+            <div>
+              The changes you made in the cart will be lost. Please, click on
+              Update Order before proceeding.
+            </div>
+            <div className="footer">
+              <button
+                class="round-but active-but"
+                type="button"
+                onClick={async () => {
+                  await this.updateOrder();
+                  const filters = this.state.locationFilters;
+                  filters[type] = value;
+                  this.setState({ locationFilters: filters });
+                  await this.fetchLocations();
+                  this.setLoaderState({
+                    show: false,
+                  });
+                }}
+              >
+                <span>Update and Proceed</span>
+              </button>
+              <button
+                class="round-but"
+                type="button"
+                data-role="action"
+                onClick={() => {
+                  this.setLoaderState({
+                    show: false,
+                  });
+                }}
+              >
+                <span>Cancel</span>
+              </button>
+            </div>
+          </div>
+        ),
+      });
+    } else {
+      const filters = this.state.locationFilters;
+      filters[type] = value;
+      this.setState({ locationFilters: filters });
+      await this.fetchLocations();
+    }
   };
 
   getLocationPostData = () => {
@@ -450,6 +590,7 @@ class MainForm extends React.Component {
       shouldLoadProdLocQty = true;
       this.setLoaderState({
         show: true,
+        title: "Please wait",
         content: <div>Updating Quantities...</div>,
       });
       await updateQtys({ cart: postQtyData });
@@ -461,6 +602,7 @@ class MainForm extends React.Component {
       shouldLoadProdLocQty = true;
       this.setLoaderState({
         show: true,
+        title: "Please wait",
         content: <div>Updating POs...</div>,
       });
       await updatePos({ po: postPoData });
@@ -472,6 +614,7 @@ class MainForm extends React.Component {
     if (shouldLoadProdLocQty) {
       this.setLoaderState({
         show: true,
+        title: "Please wait",
         content: <div>Loading Cart...</div>,
       });
       await this.fetchProdLocQty();
@@ -510,10 +653,6 @@ class MainForm extends React.Component {
   };
 
   fetchProdLocQty = async () => {
-    // this.setLoaderState({
-    //   show: true,
-    //   content: <strong>Loading cart data...</strong>,
-    // });
     await getProdLocQty().then((data) => {
       this.setState({ prodLocQty: data.qty, locPo: data.po });
       this.prevProdLocQty = _.cloneDeep(data.qty);
@@ -524,6 +663,7 @@ class MainForm extends React.Component {
   fetchProducts = async () => {
     this.setLoaderState({
       show: true,
+      title: "Please wait",
       content: <div>Loading Products...</div>,
     });
     await getProducts(this.getProductPostData()).then((data) => {
@@ -544,6 +684,7 @@ class MainForm extends React.Component {
   fetchLocations = async () => {
     this.setLoaderState({
       show: true,
+      title: "Please wait",
       content: <div>Loading Locations...</div>,
     });
     await getLocations(this.getLocationPostData()).then((data) => {
@@ -625,6 +766,74 @@ class MainForm extends React.Component {
       .catch(function (err) {
         console.log("Error", err);
       });
+
+    window.addEventListener("scroll", this.handleScroll);
+  };
+
+  componentWillUnmount = () => {
+    window.removeEventListener("scroll", this.handleScroll);
+  };
+
+  handleScroll = (event) => {
+    let scrollTop = event.srcElement.body.scrollTop,
+      itemTranslate = Math.min(0, scrollTop / 3 - 60);
+
+    if (this.refMyCartBody.current) {
+      console.log(
+        "getBoundingClientRect",
+        this.refMyCartBody.current.getBoundingClientRect().top,
+        "window.pageYOffset",
+        window.pageYOffset,
+        "window.innerHeight",
+        window.innerHeight
+      );
+    }
+
+    //   if (this.stickyFooter.current) {
+    //   console.log(
+    //     "getBoundingClientRect",
+    //     this.stickyFooter.current.getBoundingClientRect().top,
+    //     "window.pageYOffset",
+    //     window.pageYOffset,
+    //     "window.innerHeight",
+    //     window.innerHeight
+    //   );
+
+    //   if (
+    //     window.innerHeight >
+    //     this.stickyFooter.current.getBoundingClientRect().top
+    //   ) {
+    //     this.setState({ stickFooter: true });
+    //   } else {
+    //     this.setState({ stickFooter: false });
+    //   }
+    // }
+
+    // var self = this;
+    // var addToBox = $(self.element);
+    // var addToBoxBottom = addToBox[0].getBoundingClientRect().bottom + window.pageYOffset;
+    // var addToBoxTop = addToBox[0].getBoundingClientRect().top + window.pageYOffset;
+
+    // if (window.innerWidth < self.end) {
+    //     if ((window.pageYOffset + window.innerHeight) > addToBoxTop) {
+    //         self.flag = true;
+    //     }
+    //     if (self.flag) {
+    //         if ((window.pageYOffset + window.innerHeight) > addToBoxTop) {
+    //             if (window.pageYOffset > addToBoxBottom) {
+    //                 $(self.default.add).addClass(self.default.class);
+    //             } else if ((window.pageYOffset + window.innerHeight) > addToBoxTop) {
+    //                 $(self.default.add).removeClass(self.default.class);
+    //             }
+    //         } else if (window.pageYOffset < addToBoxBottom) {
+    //             $(self.default.add).addClass(self.default.class);
+    //         }
+    //     }
+    // } else {
+    //     if ($(self.default.add).hasClass(self.default.class)) {
+    //         $(self.default.add).removeClass(self.default.class);
+    //     }
+    // }
   };
 
   getTestCont = () => {
@@ -660,7 +869,7 @@ class MainForm extends React.Component {
             </div>
           </div>
 
-          <div className="multishipping_cart_body">
+          <div className="multishipping_cart_body" ref={this.refMyCartBody}>
             <div className="address_list_product table">
               <div className="table-body" id="by_sku_product">
                 {this.renderProducts()}
@@ -717,7 +926,12 @@ class MainForm extends React.Component {
             </div>
           </div>
 
-          <div className="multishipping_cart_footer sticky-bottom">
+          <div
+            className={`multishipping_cart_footer ${
+              this.state.stickFooter ? "sticky-bottom" : ""
+            }`}
+            ref={this.stickyFooter}
+          >
             <div className="address_list_product table">
               <div className="table-body">
                 <div className="row-table table-header">
@@ -727,7 +941,6 @@ class MainForm extends React.Component {
                 </div>
               </div>
             </div>
-
             <div className="address_list_qty">
               <div className="location_list_qty_table_wrapper">
                 <div className="address_list_slider">
@@ -741,7 +954,6 @@ class MainForm extends React.Component {
                 </div>
               </div>
             </div>
-
             <div className="address_list_total table_grand_total_by_sku">
               <div className="table_grand_total" id="table_grand_total">
                 {toCurrency(this.state.total.grand)}
@@ -840,7 +1052,11 @@ class MainForm extends React.Component {
                 </span>
               </div>
 
-              <div className="row full-total action-buttons sticky-bottom">
+              <div
+                className={`row full-total action-buttons ${
+                  this.state.stickFooter ? "sticky-bottom" : ""
+                }`}
+              >
                 <button
                   className="round-but active-but update_order_but"
                   disabled={

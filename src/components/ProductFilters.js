@@ -46,7 +46,6 @@ class ProductFilters extends React.Component {
   };
 
   renderMakeFilter = () => {
-    // this.props.updateFilter("model", 0, false);
     const makes = getFilterFieldsData("makes");
     return makes.map((make) => (
       <option key={`mk${make.id}`} value={make.id}>
