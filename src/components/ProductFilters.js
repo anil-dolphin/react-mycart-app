@@ -1,6 +1,7 @@
 import React from "react";
 import { getFilterFieldsData } from "../helpers/dataHelper";
 import Select from "react-select";
+import Pagination from "react-js-pagination";
 import _ from "lodash";
 
 class ProductFilters extends React.Component {
@@ -74,17 +75,21 @@ class ProductFilters extends React.Component {
 
   renderKeywordFilter = () => {
     return (
-      <input
-        type="text"
-        placeholder="Search Products"
-        value={this.props.filters.kw}
-        onChange={(event) => {
-          //console.log(event.charCode);
-          //if (event.charCode >= 48 && event.charCode <= 57) {
-          this.props.updateFilter("kw", event.target.value);
-          //}
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          this.props.updateFilter("kw", this.props.filters.kw);
         }}
-      />
+      >
+        <input
+          type="text"
+          placeholder="Search Products"
+          value={this.props.filters.kw}
+          onChange={(event) => {
+            this.props.updateFilterValue("kw", event.target.value);
+          }}
+        />
+      </form>
     );
   };
 
@@ -92,7 +97,20 @@ class ProductFilters extends React.Component {
     return (
       <div className="address_list_product table">
         <div className="multishipping_filters_cart" id="cart_filters">
-          <div className="one_filter_cart_title">Products</div>
+          <div className="count_show_qty">
+            <div className="show-qty-inner">
+              <p>
+                <b>Products:&nbsp;</b> Showing{" "}
+                <span className="now_shown">{this.props.pagination.limit}</span>{" "}
+                of{" "}
+                <span className="total_shown">
+                  {this.props.pagination.totalPage}
+                </span>{" "}
+                Products
+                <span className="is_filtered"></span>
+              </p>
+            </div>
+          </div>
           <div className="one_filter_cart product_filter_header">
             <div className="category-list" style={{ paddingTop: 0 }}>
               {this.renderCategoryFilter()}
@@ -123,9 +141,6 @@ class ProductFilters extends React.Component {
                 {this.renderModelFilter()}
               </select>
             </div>
-            <div className="filter_product_search_wrapper">
-              {this.renderKeywordFilter()}
-            </div>
             <div className="product-attr-list">
               <select
                 onChange={(event) =>
@@ -137,13 +152,37 @@ class ProductFilters extends React.Component {
                 {this.renderBrandFilter()}
               </select>
             </div>
-          </div>
-          <div className="one_filter_cart location_qty_filter_header">
-            <div className="location_list_clear_filter">
-              <a href="#" id="clear_filters" className="simple-but red-but">
-                Clear Filters
-              </a>
+            <div className="filter_product_search_wrapper">
+              {this.renderKeywordFilter()}
             </div>
+            <div className="product_list_clear_filter">
+              <button
+                className="simple-but round-but"
+                onClick={this.props.search}
+              >
+                Search
+              </button>
+              <button
+                className="simple-but round-but"
+                onClick={this.props.clearFilters}
+              >
+                Clear Filters
+              </button>
+            </div>
+          </div>
+
+          <div className="one_filter_cart location_qty_filter_header">
+            {this.props.pagination.totalPage > 10 && (
+              <div className="pagination">
+                <Pagination
+                  activePage={this.props.pagination.page}
+                  itemsCountPerPage={this.props.pagination.limit}
+                  totalItemsCount={this.props.pagination.totalPage}
+                  pageRangeDisplayed={5}
+                  onChange={this.props.onPaginate}
+                />
+              </div>
+            )}
           </div>
         </div>
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { toCurrency } from "../helpers/utilityHelper";
-
+import { openProductPopup } from "../helpers/dataHelper";
 const ProductBlock = ({ product, setQuantity, removeQuantity }) => {
   const [productQuantity, setProductQuantity] = useState({});
 
@@ -16,12 +16,24 @@ const ProductBlock = ({ product, setQuantity, removeQuantity }) => {
   return (
     <div className="row-table product">
       <div className="col col-2 img-product border-right">
-        <a href={product.product_url}>
+        <a
+          href={product.product_url}
+          onClick={(event) => {
+            event.preventDefault();
+            openProductPopup(product.product_url);
+          }}
+        >
           <img src={product.image} alt={product.sku} />
         </a>
       </div>
       <div className="col col-7 product_url">
-        <a href="https://scp.demoproject.info/index.php/default/ncredible-ncredible-n2-ote-blk-gntml-audio-62646nc.html">
+        <a
+          href={product.product_url}
+          onClick={(event) => {
+            event.preventDefault();
+            openProductPopup(product.product_url);
+          }}
+        >
           <span className=""></span>
           <p title={product.name}>{product.name}</p>
         </a>

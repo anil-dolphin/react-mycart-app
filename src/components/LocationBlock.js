@@ -14,9 +14,9 @@ class LocationBlock extends React.Component {
             {location.city} {location.region.region_code}
           </span>
           <br />
-          {location.city} - {location.street[0]}
+          {location.custom_attributes.location_name.value}
           <br />
-          <span>{location.id}</span>
+          <span>{location.custom_attributes.location_store_id.value}</span>
           <div className="more-info">
             <span className="cname">
               {location.firstname} {location.lastname}

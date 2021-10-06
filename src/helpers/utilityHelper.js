@@ -4,3 +4,6 @@ export function toAmount(amt) {
 export function toCurrency(amt) {
   return "$" + toAmount(amt);
 }
+export function toQty(qty) {
+  return Number.parseInt(qty, 10);
+}

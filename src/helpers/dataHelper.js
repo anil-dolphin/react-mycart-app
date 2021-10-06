@@ -4,6 +4,13 @@ const deployMode = "DEV"; // DEV / PROD
 
 if (deployMode === "PROD") {
 } else {
+  window.myCartFn = {};
+  window.myCartFn.updateCartSection = function () {
+    console.log("DEV MODE");
+  };
+  window.myCartFn.openProductPopup = function (url) {
+    console.log(url);
+  };
   window.mycart = {
     filters: {
       regions: [{ label: "MidWest" }, { label: "West" }],
@@ -92,10 +99,24 @@ if (deployMode === "PROD") {
         deployMode === "PROD"
           ? "https://scp.demoproject.info/mycart/api/quote"
           : "https://scp.demoproject.info/mycart/react/quote",
-      updateOrder:
+      getCartSummary:
         deployMode === "PROD"
-          ? "https://scp.demoproject.info/index.php/checkout/cart/updatePost/"
-          : "https://scp.demoproject.info/index.php/checkout/cart/updatePost/",
+          ? "https://scp.demoproject.info/mycart/api/cartdata/"
+          : "https://scp.demoproject.info/mycart/react/cartdata/",
+      updateOrder:
+        "https://scp.demoproject.info/index.php/checkout/cart/updatePost/",
+      downCurrentCart:
+        "https://scp.demoproject.info/index.php/customer/cart/export/",
+      downSampleCart:
+        "https://scp.demoproject.info/index.php/customer/cart/exportTemplate/",
+      downRtposSample:
+        "https://scp.demoproject.info/media/sample/rtpos_sample.xlsx",
+      downCiSample: "https://scp.demoproject.info/media/sample/ci_sample.xlsx",
+      downDiSample: "https://scp.demoproject.info/media/sample/di_sample.xlsx",
+      cartImport:
+        "https://scp.demoproject.info/index.php/customer/cart/import/",
+      rtposImport:
+        "https://scp.demoproject.info/index.php/customer/cart/importrtpos/",
     },
   };
 }
@@ -110,7 +131,7 @@ export async function getProducts(postData) {
     },
     body: JSON.stringify(postData),
   };
-  return await fetch(window.mycart.urls.getProducts, requestOptions)
+  return await fetch(getUrl("getProducts"), requestOptions)
     .then((response) => response.json())
     .then((data) => {
       return data;
@@ -130,7 +151,7 @@ export async function getLocations(postData) {
     },
     body: JSON.stringify(postData),
   };
-  return await fetch(window.mycart.urls.getLocations, requestOptions)
+  return await fetch(getUrl("getLocations"), requestOptions)
     .then((response) => response.json())
     .then((data) => {
       return data;
@@ -141,7 +162,18 @@ export async function getLocations(postData) {
 }
 
 export async function getProdLocQty() {
-  return await fetch(window.mycart.urls.getProdLocQty)
+  return await fetch(getUrl("getProdLocQty"))
+    .then((response) => response.json())
+    .then((data) => {
+      return data;
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+}
+
+export async function getCartSummary() {
+  return await fetch(getUrl("getCartSummary"))
     .then((response) => response.json())
     .then((data) => {
       return data;
@@ -179,7 +211,7 @@ export async function updateQtys(postData) {
     },
     body: formBody,
   };
-  return await fetch(window.mycart.urls.updateOrder, requestOptions)
+  return await fetch(getUrl("updateOrder"), requestOptions)
     .then((response) => response.json())
     .then((data) => console.error(data))
     .catch((error) => {
@@ -214,7 +246,7 @@ export async function updatePos(postData) {
     },
     body: formBody,
   };
-  return await fetch(window.mycart.urls.updateOrder, requestOptions)
+  return await fetch(getUrl("updateOrder"), requestOptions)
     .then((response) => response.json())
     .then((data) => console.error(data))
     .catch((error) => {
@@ -222,9 +254,79 @@ export async function updatePos(postData) {
     });
 }
 
+export async function downloadCart(postData) {
+  var form = document.createElement("form");
+
+  _.map(postData.qty, (locations, productId) => {
+    _.map(locations, (qty, locationId) => {
+      var ele = document.createElement("input");
+      ele.value = qty;
+      ele.name = `cart[${productId}][${locationId}]`;
+      form.appendChild(ele);
+    });
+  });
+  _.map(postData.po, (po, locationId) => {
+    var ele = document.createElement("input");
+    ele.value = po;
+    ele.name = `po[${locationId}]`;
+    form.appendChild(ele);
+  });
+
+  if (
+    document.getElementsByName("form_key") &&
+    document.getElementsByName("form_key")[0] &&
+    document.getElementsByName("form_key")[0].value
+  ) {
+    var ele = document.createElement("input");
+    ele.value = document.getElementsByName("form_key")[0].value;
+    ele.name = `form_key`;
+    form.appendChild(ele);
+  }
+
+  _.map(["location_region", "region_code", "location_city"], (name) => {
+    var ele = document.createElement("input");
+    ele.value = "0";
+    ele.name = name;
+    form.appendChild(ele);
+  });
+
+  form.method = "POST";
+  form.action = getUrl("downCurrentCart");
+  document.body.appendChild(form);
+
+  form.submit();
+
+  // const requestOptions = {
+  //   method: "POST",
+  //   headers: {
+  //     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+  //     "X-Requested-With": "XMLHttpRequest",
+  //     Accept: "*/*",
+  //   },
+  //   body: formBody,
+  // };
+  // return await fetch(getUrl("updateOrder"), requestOptions)
+  //   .then((response) => response.json())
+  //   .then((data) => console.error(data))
+  //   .catch((error) => {
+  //     console.error(error);
+  //   });
+}
+
 export function getFilterFieldsData(field = null) {
   if (field != null) {
     return window.mycart.filters[field];
   }
   return window.mycart.filters;
+}
+
+export function getUrl(type) {
+  return window.mycart.urls[type];
+}
+
+export function updateCartSection() {
+  window.myCartFn.updateCartSection();
+}
+export function openProductPopup(url) {
+  window.myCartFn.openProductPopup(url);
 }

@@ -2,11 +2,11 @@ import React from "react";
 import _ from "lodash";
 import LocationBlock from "./LocationBlock";
 import { getFilterFieldsData } from "../helpers/dataHelper";
+import Pagin from "./pagination";
 
 class LocationFilters extends React.Component {
   renderRegionFilter = () => {
     const regions = getFilterFieldsData("regions");
-
     return regions.map((region) => (
       <option key={`rg${region.label}`} value={region.label}>
         {region.label}
@@ -46,12 +46,21 @@ class LocationFilters extends React.Component {
 
   renderKeywordFilter = () => {
     return (
-      <input
-        type="text"
-        placeholder="Filter by Store Name"
-        value={this.props.filters.kw}
-        onChange={(event) => this.props.updateFilter("kw", event.target.value)}
-      />
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          this.props.updateFilter("kw", this.props.filters.kw);
+        }}
+      >
+        <input
+          type="text"
+          placeholder="Filter by Store Name"
+          value={this.props.filters.kw}
+          onChange={(event) =>
+            this.props.updateFilterValue("kw", event.target.value)
+          }
+        />
+      </form>
     );
   };
 
@@ -99,10 +108,28 @@ class LocationFilters extends React.Component {
           <div className="show-qty-inner">
             <p>
               <b>Shipping Locations:&nbsp;</b> Showing{" "}
-              <span className="now_shown">6</span> of{" "}
-              <span className="total_shown">6</span> locations
+              <span className="now_shown">{this.props.pagination.limit}</span>{" "}
+              of{" "}
+              <span className="total_shown">
+                {this.props.pagination.totalPage}
+              </span>{" "}
+              locations
               <span className="is_filtered"></span>
             </p>
+          </div>
+          <div className="product_list_clear_filter">
+            <button
+              className="simple-but round-but"
+              onClick={this.props.search}
+            >
+              Search
+            </button>
+            <button
+              className="simple-but round-but"
+              onClick={this.props.clearFilters}
+            >
+              Clear Filters
+            </button>
           </div>
         </div>
         <div className="count_show_qty">
@@ -178,6 +205,60 @@ class LocationFilters extends React.Component {
                 <div className="row-table" id="location_name_by_sku">
                   {this.renderLocations()}
                 </div>
+
+                {this.props.pagination.totalPage > 6 && (
+                  <div className="pagination">
+                    <Pagin
+                      activePage={this.props.pagination.page}
+                      itemsCountPerPage={this.props.pagination.limit}
+                      totalItemsCount={this.props.pagination.totalPage}
+                      pageRangeDisplayed={5}
+                      handleClick={this.props.handlePagination}
+                      component="location"
+                    />
+                  </div>
+                )}
+
+                {/* <div class="pagination">
+                  <div class="location-pagination">
+                    <button type="button" class="prev">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        class="arrows-icon"
+                        width="25"
+                        height="25"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M15 19l-7-7 7-7"
+                        ></path>
+                      </svg>
+                    </button>
+                    <button type="button" class="next ">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        class="arrows-icon"
+                        width="25"
+                        height="25"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M9 5l7 7-7 7"
+                        ></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div> */}
               </div>
             </div>
           </div>
