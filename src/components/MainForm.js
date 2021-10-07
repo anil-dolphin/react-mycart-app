@@ -25,6 +25,7 @@ class MainForm extends React.Component {
     super(props);
     this.prevProdLocQty = {};
     this.prevLocPo = {};
+    this.quoteProdPrice = {};
 
     this.refMyCartWrapper = React.createRef();
     this.refMyCartBody = React.createRef();
@@ -35,8 +36,8 @@ class MainForm extends React.Component {
   state = {
     isLoading: true,
     prodLocQty: {},
-    cartSummary: {},
     locPo: {},
+    cartSummary: {},
     total: { products: [], locations: [], grand: 0 },
     locations: {},
     products: {},
@@ -143,7 +144,6 @@ class MainForm extends React.Component {
         type="number"
         size="4"
         min={0}
-        // max={1000}
         className={cssClass}
         value={qty}
         data-role="cart-item-qty"
@@ -201,7 +201,6 @@ class MainForm extends React.Component {
   /**
    * Operations
    */
-
   generateTotals = () => {
     const { prodLocQty } = this.state;
     const products = this.state.products;
@@ -210,7 +209,10 @@ class MainForm extends React.Component {
       lTotals = [];
 
     Object.keys(prodLocQty).map((productId) => {
-      const price = products[productId].price;
+      let price = 0;
+      if (products[productId] === undefined)
+        price = this.quoteProdPrice[productId];
+      else price = products[productId].price;
 
       Object.keys(prodLocQty[productId]).map((locationId) => {
         const qty = toQty(prodLocQty[productId][locationId]);
@@ -389,9 +391,6 @@ class MainForm extends React.Component {
       );
     } else {
       this.updateProductFilterValue(type, value);
-      // const filters = this.state.productFilters;
-      // filters[type] = value;
-      // this.setState({ productFilters: filters });
       await this.fetchProducts();
     }
   };
@@ -616,30 +615,8 @@ class MainForm extends React.Component {
     }
   };
 
-  downloadCurrentCart = async () => {
+  downloadCurrentCart = () => {
     downloadCart({ qty: this.state.prodLocQty, po: this.state.locPo });
-
-    // let shouldLoadProdLocQty = false;
-    // if (!_.isEmpty(postQtyData) || ) {
-    //   shouldLoadProdLocQty = true;
-    // }
-    // if (!_.isEmpty(postPoData)) {
-    //   shouldLoadProdLocQty = true;
-    // }
-
-    // if (shouldLoadProdLocQty) {
-    //   this.setLoaderState({
-    //     show: true,
-    //     title: "Please wait",
-    //     content: <div>Loading Cart...</div>,
-    //   });
-    //   await this.fetchProdLocQty();
-    //   await this.fetchCartSummary();
-    //   updateCartSection();
-    //   this.setLoaderState({
-    //     show: false,
-    //   });
-    // }
   };
 
   /**
@@ -667,6 +644,7 @@ class MainForm extends React.Component {
 
   fetchProdLocQty = async () => {
     await getProdLocQty().then((data) => {
+      this.quoteProdPrice = data.price;
       this.setState({ prodLocQty: data.qty, locPo: data.po });
       this.prevProdLocQty = _.cloneDeep(data.qty);
       this.prevLocPo = _.cloneDeep(data.po);
@@ -727,6 +705,7 @@ class MainForm extends React.Component {
   componentDidMount = () => {
     let promiseProdLocQty = new Promise((resolve, reject) => {
       getProdLocQty().then((data) => {
+        this.quoteProdPrice = data.price;
         this.setState({ prodLocQty: data.qty, locPo: data.po });
         this.setLoaderState({ content: <div>Loading Quote...</div> });
         this.prevProdLocQty = _.cloneDeep(data.qty);
@@ -917,22 +896,6 @@ class MainForm extends React.Component {
                     <div className="table-body" id="location_qty_by_sku">
                       {this.renderQtyInputsRows()}
                     </div>
-                    {/* {this.state.locationsPagination.totalPage > 6 && (
-                      <div className="pagination">
-                        <Pagin
-                          activePage={this.state.locationsPagination.page}
-                          itemsCountPerPage={
-                            this.state.locationsPagination.limit
-                          }
-                          totalItemsCount={
-                            this.state.locationsPagination.totalPage
-                          }
-                          pageRangeDisplayed={5}
-                          handleClick={this.handleLocationPagination}
-                          component="location"
-                        />
-                      </div>
-                    )} */}
                   </div>
                 </div>
               </div>

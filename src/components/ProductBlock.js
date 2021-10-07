@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { toCurrency } from "../helpers/utilityHelper";
-import { openProductPopup } from "../helpers/dataHelper";
+import { openProductPopup, getShowAsNew } from "../helpers/dataHelper";
 const ProductBlock = ({ product, setQuantity, removeQuantity }) => {
   const [productQuantity, setProductQuantity] = useState({});
 
@@ -34,7 +34,11 @@ const ProductBlock = ({ product, setQuantity, removeQuantity }) => {
             openProductPopup(product.product_url);
           }}
         >
-          <span className=""></span>
+          {getShowAsNew() && product.is_new_product ? (
+            <span className="is_new"></span>
+          ) : (
+            ""
+          )}
           <p title={product.name}>{product.name}</p>
         </a>
       </div>

@@ -106,7 +106,7 @@ if (deployMode === "PROD") {
       updateOrder:
         "https://scp.demoproject.info/index.php/checkout/cart/updatePost/",
       downCurrentCart:
-        "https://scp.demoproject.info/index.php/customer/cart/export/",
+        "https://scp.demoproject.info/metro/index.php/customer/cart/export/",
       downSampleCart:
         "https://scp.demoproject.info/index.php/customer/cart/exportTemplate/",
       downRtposSample:
@@ -118,6 +118,9 @@ if (deployMode === "PROD") {
       rtposImport:
         "https://scp.demoproject.info/index.php/customer/cart/importrtpos/",
     },
+    currency: "$",
+    showAsNew: true,
+    importPending: true,
   };
 }
 
@@ -191,14 +194,8 @@ export async function updateQtys(postData) {
       formBody.push(`cart[${productId}][${locationId}][qty]=${qty}`);
     });
   });
-  if (
-    document.getElementsByName("form_key") &&
-    document.getElementsByName("form_key")[0] &&
-    document.getElementsByName("form_key")[0].value
-  )
-    formBody.push(
-      `form_key=${document.getElementsByName("form_key")[0].value}`
-    );
+
+  formBody.push(`form_key=${getFormKey()}`);
   formBody.push(`is_single=1`);
   formBody = formBody.join("&");
 
@@ -254,34 +251,29 @@ export async function updatePos(postData) {
     });
 }
 
-export async function downloadCart(postData) {
+export function downloadCart(postData) {
   var form = document.createElement("form");
 
   _.map(postData.qty, (locations, productId) => {
     _.map(locations, (qty, locationId) => {
       var ele = document.createElement("input");
       ele.value = qty;
-      ele.name = `cart[${productId}][${locationId}]`;
+      ele.name = `cart[${productId}][${locationId}][qty]`;
       form.appendChild(ele);
     });
   });
-  _.map(postData.po, (po, locationId) => {
-    var ele = document.createElement("input");
-    ele.value = po;
-    ele.name = `po[${locationId}]`;
-    form.appendChild(ele);
-  });
 
-  if (
-    document.getElementsByName("form_key") &&
-    document.getElementsByName("form_key")[0] &&
-    document.getElementsByName("form_key")[0].value
-  ) {
-    var ele = document.createElement("input");
-    ele.value = document.getElementsByName("form_key")[0].value;
-    ele.name = `form_key`;
-    form.appendChild(ele);
-  }
+  // _.map(postData.po, (po, locationId) => {
+  //   var ele = document.createElement("input");
+  //   ele.value = po;
+  //   ele.name = `po[${locationId}]`;
+  //   form.appendChild(ele);
+  // });
+
+  var ele = document.createElement("input");
+  ele.value = getFormKey();
+  ele.name = `form_key`;
+  form.appendChild(ele);
 
   _.map(["location_region", "region_code", "location_city"], (name) => {
     var ele = document.createElement("input");
@@ -291,9 +283,9 @@ export async function downloadCart(postData) {
   });
 
   form.method = "POST";
+  form.enctype = "application/x-www-form-urlencoded";
   form.action = getUrl("downCurrentCart");
   document.body.appendChild(form);
-
   form.submit();
 
   // const requestOptions = {
@@ -313,17 +305,37 @@ export async function downloadCart(postData) {
   //   });
 }
 
-export function getFilterFieldsData(field = null) {
+export function getFormKey(postData) {
+  return document.getElementsByName("form_key") &&
+    document.getElementsByName("form_key")[0] &&
+    document.getElementsByName("form_key")[0].value
+    ? document.getElementsByName("form_key")[0].value
+    : "";
+}
+export function getMyCartField(field = null) {
   if (field != null) {
-    return window.mycart.filters[field];
+    return window.mycart[field];
   }
+  return window.mycart;
+}
+export function getFilterFieldsData(field = null) {
+  const filters = getMyCartField("filters");
+  if (field !== null) return filters[field];
   return window.mycart.filters;
 }
-
 export function getUrl(type) {
-  return window.mycart.urls[type];
+  const urls = getMyCartField("urls");
+  return urls[type];
 }
-
+export function getCurrency() {
+  return getMyCartField("currency");
+}
+export function getShowAsNew() {
+  return getMyCartField("showAsNew");
+}
+export function importPending() {
+  return getMyCartField("importPending");
+}
 export function updateCartSection() {
   window.myCartFn.updateCartSection();
 }

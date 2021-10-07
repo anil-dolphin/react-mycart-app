@@ -1,16 +1,23 @@
 import React from "react";
-import { getUrl } from "../helpers/dataHelper";
+import { getUrl, getFormKey, importPending } from "../helpers/dataHelper";
 
 class ImportExport extends React.Component {
   render() {
     return (
       <div className="exel-part">
         <h3>Prefer Excel?</h3>
+        {importPending() ? (
+          <p class="csv_import_status">
+            Your import is in progress, we will notify you through an email once
+            it is processed.
+          </p>
+        ) : (
+          ""
+        )}
         <p>
           Download your current cart as a spreadsheet, update the quantities and
           we will create a shopping cart for you.
         </p>
-
         <div className="import-execel-wrapper">
           <label htmlFor="import_excel" className="round-but black-but">
             Import Order Data
@@ -67,10 +74,11 @@ class ImportExport extends React.Component {
         <form
           style={{ display: "none" }}
           method="POST"
-          enctype="multipart/form-data"
+          encType="multipart/form-data"
           id="import-form"
           action={getUrl("cartImport")}
         >
+          <input type="hidden" name="form_key" value={getFormKey()} />
           <input
             type="file"
             id="import_excel"
@@ -78,6 +86,7 @@ class ImportExport extends React.Component {
             accept=".xlsx, .xls, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
             onChange={(event) => {
               event.preventDefault();
+
               document.getElementById("import-form").submit();
             }}
           />
@@ -85,10 +94,11 @@ class ImportExport extends React.Component {
         <form
           style={{ display: "none" }}
           method="POST"
-          enctype="multipart/form-data"
+          encType="multipart/form-data"
           id="import-form-rtpos"
           action={getUrl("rtposImport")}
         >
+          <input type="hidden" name="form_key" value={getFormKey()} />
           <input
             type="file"
             id="import_excel_rtpos"
