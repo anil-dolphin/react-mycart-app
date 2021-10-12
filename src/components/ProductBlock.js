@@ -26,7 +26,7 @@ const ProductBlock = ({ product, setQuantity, removeQuantity }) => {
           <img src={product.image} alt={product.sku} />
         </a>
       </div>
-      <div className="col col-7 product_url">
+      <div className="col col-8 product_url">
         <a
           href={product.product_url}
           onClick={(event) => {
@@ -51,7 +51,6 @@ const ProductBlock = ({ product, setQuantity, removeQuantity }) => {
           >
             <svg
               className="delete-icon"
-              svg={true}
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 30 30"
               width="20"
@@ -88,7 +87,7 @@ const ProductBlock = ({ product, setQuantity, removeQuantity }) => {
           />
         </div>
       </div>
-      <div className="col col-3 single-price align-center">
+      <div className="col col-2 single-price align-right">
         {toCurrency(product.price)}
       </div>
     </div>

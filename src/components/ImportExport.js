@@ -7,7 +7,7 @@ class ImportExport extends React.Component {
       <div className="exel-part">
         <h3>Prefer Excel?</h3>
         {importPending() ? (
-          <p class="csv_import_status">
+          <p className="csv_import_status">
             Your import is in progress, we will notify you through an email once
             it is processed.
           </p>

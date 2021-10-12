@@ -13,7 +13,8 @@ if (deployMode === "PROD") {
   };
   window.mycart = {
     filters: {
-      regions: [{ label: "MidWest" }, { label: "West" }],
+      // regions: [{ label: "MidWest" }, { label: "West" }],
+      regions: false,
       states: [
         { id: "39", label: "CA" },
         { id: "75", label: "IN" },
@@ -105,6 +106,10 @@ if (deployMode === "PROD") {
           : "https://scp.demoproject.info/mycart/react/cartdata/",
       updateOrder:
         "https://scp.demoproject.info/index.php/checkout/cart/updatePost/",
+      manageLocations:
+        "https://scp.demoproject.info/index.php/customer/address/location/",
+      selectShipping:
+        "https://scp.demoproject.info/index.php/multishipping/checkout/shipping/",
       downCurrentCart:
         "https://scp.demoproject.info/metro/index.php/customer/cart/export/",
       downSampleCart:
@@ -287,25 +292,10 @@ export function downloadCart(postData) {
   form.action = getUrl("downCurrentCart");
   document.body.appendChild(form);
   form.submit();
-
-  // const requestOptions = {
-  //   method: "POST",
-  //   headers: {
-  //     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-  //     "X-Requested-With": "XMLHttpRequest",
-  //     Accept: "*/*",
-  //   },
-  //   body: formBody,
-  // };
-  // return await fetch(getUrl("updateOrder"), requestOptions)
-  //   .then((response) => response.json())
-  //   .then((data) => console.error(data))
-  //   .catch((error) => {
-  //     console.error(error);
-  //   });
+  document.body.removeChild(form);
 }
 
-export function getFormKey(postData) {
+export function getFormKey() {
   return document.getElementsByName("form_key") &&
     document.getElementsByName("form_key")[0] &&
     document.getElementsByName("form_key")[0].value

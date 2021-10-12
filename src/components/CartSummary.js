@@ -1,5 +1,6 @@
 import React from "react";
 import { toCurrency } from "../helpers/utilityHelper";
+import { getUrl } from "../helpers/dataHelper";
 
 class CartSummary extends React.Component {
   render() {
@@ -44,9 +45,13 @@ class CartSummary extends React.Component {
             Update Order
           </button>
           <a
-            href="https://scp.demoproject.info/index.php/default/multishipping/checkout/shipping/"
+            href={getUrl("selectShipping")}
             className="round-but active-but place-order"
             id="go_to_shipping"
+            onClick={(event) => {
+              event.preventDefault();
+              this.props.goToShipping();
+            }}
           >
             Select shipping
           </a>

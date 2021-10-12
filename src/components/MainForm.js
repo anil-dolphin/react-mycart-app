@@ -17,12 +17,14 @@ import {
   updateQtys,
   updatePos,
   updateCartSection,
+  getUrl,
 } from "../helpers/dataHelper";
 import { toCurrency, toQty } from "../helpers/utilityHelper";
 
 class MainForm extends React.Component {
   constructor(props) {
     super(props);
+    this.autoSaveInterval = 0;
     this.prevProdLocQty = {};
     this.prevLocPo = {};
     this.quoteProdPrice = {};
@@ -41,7 +43,7 @@ class MainForm extends React.Component {
     total: { products: [], locations: [], grand: 0 },
     locations: {},
     products: {},
-    productsPagination: { limit: 10, page: 1, totalPage: 0 },
+    productsPagination: { limit: 25, page: 1, totalPage: 0 },
     locationsPagination: { limit: 6, page: 1, totalPage: 0 },
     productFilters: {
       kw: "",
@@ -281,6 +283,7 @@ class MainForm extends React.Component {
     }
 
     this.setState({ prodLocQty: prodLocQty }, () => this.generateTotals());
+    this.setAutoSave();
   };
 
   setQtyMultiple = (data) => {
@@ -317,6 +320,8 @@ class MainForm extends React.Component {
     this.setState({ prodLocQty: currentProdLocQty }, () => {
       this.generateTotals();
     });
+
+    this.setAutoSave();
   };
 
   removeQtyMultiple = (productId) => {
@@ -334,6 +339,7 @@ class MainForm extends React.Component {
       delete locPo[locationId];
 
     this.setState({ locPo: locPo });
+    this.setAutoSave();
   };
 
   isUpdatePending = () => {
@@ -354,7 +360,7 @@ class MainForm extends React.Component {
           </div>
           <div className="footer">
             <button
-              class="round-but active-but"
+              className="round-but active-but"
               type="button"
               onClick={async () => {
                 await this.updateOrder();
@@ -367,7 +373,7 @@ class MainForm extends React.Component {
               <span>Update and Proceed</span>
             </button>
             <button
-              class="round-but"
+              className="round-but"
               type="button"
               data-role="action"
               onClick={() => {
@@ -415,8 +421,7 @@ class MainForm extends React.Component {
       };
 
       // let pagination = this.state.productsPagination;
-      // pagination = { limit: 10, page: 1, totalPage: 0 };
-
+      // pagination = { limit: 25, page: 1, totalPage: 0 };
       // this.setState({ productsPagination: pagination });
       this.setState({ productFilters: filters }, this.fetchProducts);
     }
@@ -481,7 +486,6 @@ class MainForm extends React.Component {
 
       // let pagination = this.state.locationsPagination;
       // pagination = { limit: 6, page: 1, totalPage: 0 };
-
       // this.setState({ locationsPagination: pagination });
       this.setState({ locationFilters: filters }, this.fetchLocations);
     }
@@ -606,13 +610,33 @@ class MainForm extends React.Component {
         title: "Please wait",
         content: <div>Loading Cart...</div>,
       });
+
+      if (this.state.locationFilters.applyQty) await this.fetchLocations();
       await this.fetchProdLocQty();
       await this.fetchCartSummary();
+
       updateCartSection();
       this.setLoaderState({
         show: false,
       });
     }
+  };
+
+  goToShipping = async () => {
+    if (this.isUpdatePending()) {
+      await this.openPendingSavePopup(
+        () => (window.location.href = getUrl("selectShipping"))
+      );
+    } else {
+      window.location.href = getUrl("selectShipping");
+    }
+  };
+
+  setAutoSave = () => {
+    clearInterval(this.autoSaveInterval);
+    this.autoSaveInterval = setInterval(() => {
+      this.updateOrder();
+    }, 10000);
   };
 
   downloadCurrentCart = () => {
@@ -682,7 +706,7 @@ class MainForm extends React.Component {
     this.setLoaderState({
       show: true,
       title: "Please wait",
-      content: <div>Loading Locations...</div>,
+      content: <div>Loading Stores...</div>,
     });
     await getLocations(this.getLocationPostData()).then((data) => {
       this.setState({ locations: _.mapKeys(data.locations, "id") });
@@ -734,7 +758,7 @@ class MainForm extends React.Component {
     let promiseLocations = new Promise((resolve, reject) => {
       getLocations(this.getLocationPostData()).then((data) => {
         this.setState({ locations: _.mapKeys(data.locations, "id") });
-        this.setLoaderState({ content: <div>Loading Locations...</div> });
+        this.setLoaderState({ content: <div>Loading Stores...</div> });
         this.setState({
           locationsPagination: {
             limit: data.limit,
@@ -782,6 +806,11 @@ class MainForm extends React.Component {
     window.addEventListener("scroll", this.handleScroll);
     window.addEventListener("resize", this.handleResize);
   };
+
+  // componentDidUpdate = (p, n) => {
+  //   localStorage.setItem("products", JSON.stringify(n.productFilters));
+  //   localStorage.setItem("locations", JSON.stringify(n.locationFilters));
+  // };
 
   componentWillUnmount = () => {
     window.removeEventListener("scroll", this.handleScroll);
@@ -950,6 +979,7 @@ class MainForm extends React.Component {
               summary={this.state.cartSummary}
               allowUpdate={this.isUpdatePending()}
               updateOrder={this.updateOrder}
+              goToShipping={this.goToShipping}
               stickFooter={this.state.stickFooter}
             />
           </div>

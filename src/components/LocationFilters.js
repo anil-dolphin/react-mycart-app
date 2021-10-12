@@ -1,7 +1,7 @@
 import React from "react";
 import _ from "lodash";
 import LocationBlock from "./LocationBlock";
-import { getFilterFieldsData } from "../helpers/dataHelper";
+import { getFilterFieldsData, getUrl } from "../helpers/dataHelper";
 import Pagin from "./pagination";
 
 class LocationFilters extends React.Component {
@@ -68,7 +68,18 @@ class LocationFilters extends React.Component {
     const { locations } = this.props;
 
     if (_.isEmpty(locations)) {
-      return <div className="no-data-found">No locations found</div>;
+      return (
+        <div className="no-data-found">
+          No stores found.{" "}
+          <a
+            href={getUrl("manageLocations")}
+            className="theme-color-btn"
+            target="_blank"
+          >
+            Manage Stores
+          </a>
+        </div>
+      );
     } else {
       return Object.values(this.props.locations).map((location) => {
         const po = this.getLocationPo(location.id);
@@ -102,30 +113,53 @@ class LocationFilters extends React.Component {
   };
 
   render() {
+    const { limit, page, totalPage } = this.props.pagination;
+
+    let locationsCount = limit;
+    let isLastPage = false;
+    if (limit * page >= totalPage) {
+      locationsCount = totalPage - limit * (page - 1);
+      isLastPage = true;
+    }
+
+    let fromTo = { from: page, to: limit };
+    if (page == 1) {
+      fromTo = { from: page, to: limit };
+      if (isLastPage) {
+        fromTo = { from: page, to: locationsCount };
+      }
+    } else if (page > 1 && !isLastPage) {
+      fromTo = { from: limit * (page - 1) + 1, to: page * limit };
+    } else if (isLastPage) {
+      fromTo = { from: limit * (page - 1) + 1, to: totalPage };
+    }
     return (
       <div className="address_list_qty">
         <div className="count_show_qty">
           <div className="show-qty-inner">
             <p>
-              <b>Shipping Locations:&nbsp;</b> Showing{" "}
-              <span className="now_shown">{this.props.pagination.limit}</span>{" "}
-              of{" "}
+              <b>Shipping Stores:&nbsp;</b> Showing{" "}
+              {this.props.pagination.totalPage > 0 ? (
+                <React.Fragment>
+                  <span className="now_shown">{fromTo.from}</span> to{" "}
+                  <span className="now_shown">{fromTo.to}</span> of{" "}
+                </React.Fragment>
+              ) : (
+                ""
+              )}
               <span className="total_shown">
                 {this.props.pagination.totalPage}
               </span>{" "}
-              locations
+              stores
               <span className="is_filtered"></span>
             </p>
           </div>
           <div className="product_list_clear_filter">
-            <button
-              className="simple-but round-but"
-              onClick={this.props.search}
-            >
+            <button className="theme-color-btn" onClick={this.props.search}>
               Search
             </button>
             <button
-              className="simple-but round-but"
+              className="theme-color-btn"
               onClick={this.props.clearFilters}
             >
               Clear Filters
@@ -135,15 +169,19 @@ class LocationFilters extends React.Component {
         <div className="count_show_qty">
           <div className="location_list_qty_header" id="loc_list_qty_header">
             {this.renderKeywordFilter()}
-            <select
-              onChange={(event) =>
-                this.props.updateFilter("region", event.target.value)
-              }
-              value={this.props.filters.region}
-            >
-              <option value="0">Region</option>
-              {this.renderRegionFilter()}
-            </select>
+            {getFilterFieldsData("regions") ? (
+              <select
+                onChange={(event) =>
+                  this.props.updateFilter("region", event.target.value)
+                }
+                value={this.props.filters.region}
+              >
+                <option value="0">Region</option>
+                {this.renderRegionFilter()}
+              </select>
+            ) : (
+              ""
+            )}
             <select
               onChange={(event) =>
                 this.props.updateFilter("state", event.target.value)
@@ -218,47 +256,6 @@ class LocationFilters extends React.Component {
                     />
                   </div>
                 )}
-
-                {/* <div class="pagination">
-                  <div class="location-pagination">
-                    <button type="button" class="prev">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        class="arrows-icon"
-                        width="25"
-                        height="25"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M15 19l-7-7 7-7"
-                        ></path>
-                      </svg>
-                    </button>
-                    <button type="button" class="next ">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        class="arrows-icon"
-                        width="25"
-                        height="25"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M9 5l7 7-7 7"
-                        ></path>
-                      </svg>
-                    </button>
-                  </div>
-                </div> */}
               </div>
             </div>
           </div>

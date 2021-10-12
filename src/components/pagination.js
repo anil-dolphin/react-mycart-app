@@ -70,7 +70,6 @@ function Pagination({
         onClick={() => goToPrevData()}
       >
         <svg
-          svg={true}
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -114,7 +113,6 @@ function Pagination({
         }`}
       >
         <svg
-          svg={true}
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -137,7 +135,7 @@ function Pagination({
           className={`prev ${currenPage === totalItemsCount ? "disabled" : ""}`}
           onClick={() => goToLastPage()}
         >
-          {`>>>`}
+          last
         </button>
       )}
     </div>

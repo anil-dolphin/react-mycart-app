@@ -94,6 +94,33 @@ class ProductFilters extends React.Component {
   };
 
   render() {
+    const { limit, page, totalPage } = this.props.pagination;
+    // {limit: 10, page: 1, totalPage: 193}
+    // {limit: 10, page: 20, totalPage: 193}
+    // {limit: 10, page: 2, totalPage: 193}
+    // {limit: 25, page: 7, totalPage: 193}
+    // {limit: 25, page: 8, totalPage: 193}
+    // {limit: 200, page: 1, totalPage: 193}
+
+    let productsCount = limit;
+    let isLastPage = false;
+    if (limit * page >= totalPage) {
+      productsCount = totalPage - limit * (page - 1);
+      isLastPage = true;
+    }
+
+    let fromTo = { from: page, to: limit };
+    if (page == 1) {
+      fromTo = { from: page, to: limit };
+      if (isLastPage) {
+        fromTo = { from: page, to: productsCount };
+      }
+    } else if (page > 1 && !isLastPage) {
+      fromTo = { from: limit * (page - 1) + 1, to: page * limit };
+    } else if (isLastPage) {
+      fromTo = { from: limit * (page - 1) + 1, to: totalPage };
+    }
+
     return (
       <div className="address_list_product table">
         <div className="multishipping_filters_cart" id="cart_filters">
@@ -101,12 +128,18 @@ class ProductFilters extends React.Component {
             <div className="show-qty-inner">
               <p>
                 <b>Products:&nbsp;</b> Showing{" "}
-                <span className="now_shown">{this.props.pagination.limit}</span>{" "}
-                of{" "}
+                {this.props.pagination.totalPage > 0 ? (
+                  <React.Fragment>
+                    <span className="now_shown">{fromTo.from}</span> to{" "}
+                    <span className="now_shown">{fromTo.to}</span> of{" "}
+                  </React.Fragment>
+                ) : (
+                  ""
+                )}
                 <span className="total_shown">
                   {this.props.pagination.totalPage}
                 </span>{" "}
-                Products
+                products
                 <span className="is_filtered"></span>
               </p>
             </div>
@@ -118,7 +151,7 @@ class ProductFilters extends React.Component {
             <div className="product-attr-list">
               <select
                 onChange={(event) => {
-                  this.props.updateFilter("model", 0, false);
+                  this.props.updateFilterValue("model", 0);
                   this.props.updateFilter("make", event.target.value);
                 }}
                 value={this.props.filters.make}
@@ -156,14 +189,11 @@ class ProductFilters extends React.Component {
               {this.renderKeywordFilter()}
             </div>
             <div className="product_list_clear_filter">
-              <button
-                className="simple-but round-but"
-                onClick={this.props.search}
-              >
+              <button className="theme-color-btn" onClick={this.props.search}>
                 Search
               </button>
               <button
-                className="simple-but round-but"
+                className="theme-color-btn"
                 onClick={this.props.clearFilters}
               >
                 Clear Filters
@@ -179,7 +209,12 @@ class ProductFilters extends React.Component {
                   itemsCountPerPage={this.props.pagination.limit}
                   totalItemsCount={this.props.pagination.totalPage}
                   pageRangeDisplayed={5}
+                  hideDisabled={true}
                   onChange={this.props.onPaginate}
+                  linkClassFirst="first arrow"
+                  linkClassPrev="prev arrow"
+                  linkClassNext="next arrow"
+                  linkClassLast="last arrow"
                 />
               </div>
             )}
@@ -189,7 +224,8 @@ class ProductFilters extends React.Component {
         <div className="table-header">
           <div className="row-table">
             <div className="col col-9">Product Descripton</div>
-            <div className="col col-7 align-right">Purchase Orders</div>
+            <div className="col col-4"></div>
+            <div className="col col-3 align-right">Price</div>
           </div>
         </div>
       </div>

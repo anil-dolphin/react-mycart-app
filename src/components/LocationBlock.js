@@ -28,7 +28,7 @@ class LocationBlock extends React.Component {
           <input
             type="text"
             size="20"
-            placeholder="PO#"
+            placeholder="Purchase Order #"
             className={this.props.cssClass}
             value={this.props.po}
             onChange={(event) => {

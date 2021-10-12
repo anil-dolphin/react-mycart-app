@@ -127,6 +127,52 @@
 .table .table-body .row-table:last-child {
   border-bottom: none;
 }
+.theme-color-btn,
+.black-white-btn,
+.trans-color-btn {
+  border-radius: 20px;
+  text-decoration: none;
+  box-sizing: border-box;
+  text-align: center;
+  padding: 5px 10px;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  text-transform: none;
+}
+.theme-color-btn {
+  background-color: var(--color-bordo);
+  color: var(--color-white);
+  border: 1px solid var(--color-bordo);
+}
+.theme-color-btn:hover,
+.theme-color-btn:focus {
+  background-color: var(--color-bordo);
+  border: 1px solid var(--color-bordo);
+}
+.trans-color-btn {
+  background-color: transparent;
+  color: var(--color-bordo);
+  border: 1px solid var(--color-bordo);
+}
+a.trans-color-btn:hover,
+.trans-color-btn:hover,
+.trans-color-btn:focus {
+  background-color: var(--body-back);
+  border: 1px solid var(--color-bordo);
+}
+.black-white-btn {
+  background-color: var(--color-white);
+  color: var(--color-black);
+  border: 1px solid var(--color-black);
+}
+.black-white-btn:hover,
+.black-white-btn:focus {
+  background-color: var(--body-back);
+  border: inherit;
+  border: 1px solid var(--color-black);
+}
 
 .multishipping_cart_wrapper .address_list_product .table-header .row-table {
   -webkit-box-align: end;
@@ -308,15 +354,6 @@
   text-decoration: none;
   color: var(--color-black);
 }
-.multishipping_cart_wrapper
-  .address_list_product
-  .table-body
-  .row-table
-  .product_url
-  p {
-  margin: 0;
-  line-height: 30px;
-}
 
 .multishipping_cart_wrapper .address_list_product .table-body .product_action {
   display: flex;
@@ -330,7 +367,7 @@
   box-shadow: none;
   outline: none;
   border: none;
-  padding: 3px 14px;
+  padding: 3px 10px;
   font-size: 24px;
   line-height: 24px;
   vertical-align: top;
@@ -389,11 +426,16 @@
 }
 
 .multishipping_cart_wrapper .address_list_product .table-body p {
-  font-size: 15px;
-  max-width: 98%;
-  white-space: nowrap;
+  font-size: 13px;
+  max-width: 100%;
+  white-space: normal;
+  line-height: 18px;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  margin: 0;
 }
 
 .multishipping_cart_wrapper .address_list_product .table-body .single-price {
@@ -525,7 +567,7 @@
   width: 100%;
   max-width: 100%;
 }
-.filter_product_search_wrapper  {
+.filter_product_search_wrapper {
   grid-row-start: 4;
   width: 100% !important;
   display: block !important;
@@ -540,21 +582,13 @@
 .product_list_clear_filter {
   grid-row-start: 4;
   display: flex;
-  justify-content: right; 
+  justify-content: right;
   gap: 5px;
 }
 .product_filter_header .product_list_clear_filter {
   margin-top: 5px;
 }
 .product_list_clear_filter button {
-  background: var(--color-bordo);
-  padding: 5px 10px !important;
-  border-radius: 20px;
-  display: inline-block;
-  color: var(--color-white);
-  border: 1px solid var(--color-bordo);
-  cursor: pointer;
-  line-height: 1;
   margin: 0 !important;
 }
 
@@ -612,21 +646,6 @@
 .multishipping_cart_wrapper .count_show_qty span {
   font-weight: 500;
   color: var(--color-bordo);
-}
-.multishipping_cart_wrapper .count_show_qty button,
-.multishipping_cart_wrapper
-  .count_show_qty
-  .quote-details-items
-  .actions-toolbar
-  > .action,
-.multishipping_cart_wrapper
-  .count_show_qty
-  .cart.table-wrapper
-  .actions-toolbar
-  > .action,
-.multishipping_cart_wrapper .count_show_qty .action-gift {
-  padding: 11px 20px;
-  margin-left: 5px;
 }
 
 .multishipping_cart_wrapper .location_list_qty_table_wrapper {
@@ -693,6 +712,14 @@
 .multishipping_cart_wrapper
   .location_list_qty_table_wrapper
   .address_list_slider
+  .location-po
+  input {
+  font-size: 12px;
+}
+
+.multishipping_cart_wrapper
+  .location_list_qty_table_wrapper
+  .address_list_slider
   .po-field {
   font-size: 12px;
   font-weight: 600;
@@ -754,10 +781,6 @@ ul.pagination {
   padding-right: 5px;
 }
 
-.address_list_product ul.pagination li {
-  padding: 0 10px;
-}
-
 div.pagination {
   display: block;
   margin: 0px auto;
@@ -774,17 +797,22 @@ div.pagination {
   background: var(--color-bordo);
   color: var(--color-white);
   border-radius: 50%;
-  width: 25px;
   text-align: center;
+  max-width: 25px;
+  padding: 0 9px;
+}
+.address_list_product ul.pagination li {
+  margin: 0 2px;
 }
 .address_list_product ul.pagination li a {
   color: var(--color-black);
   text-decoration: none;
   line-height: 25px;
   display: block;
+  padding: 0 10px;
 }
-.address_list_product ul.pagination li:first-child a,
-.address_list_product ul.pagination li:last-child a {
+.address_list_product ul.pagination li a.first,
+.address_list_product ul.pagination li a.last {
   font-size: 24px;
 }
 
@@ -799,6 +827,7 @@ div.pagination {
   border: none;
   cursor: pointer;
   z-index: 99;
+  padding: 7px;
 }
 .address_list_qty .location-pagination .prev {
   left: -40px;
@@ -809,12 +838,12 @@ div.pagination {
 .address_list_qty .location-pagination .disabled {
   opacity: 0;
   cursor: default;
-  pointer-events: none;;
+  pointer-events: none;
 }
 
 /* -----------------/pagination---------------------- */
-.address_list_qty_table, 
-.address_list_qty_table .table-header, 
+.address_list_qty_table,
+.address_list_qty_table .table-header,
 .address_list_qty_table .row-table {
   height: 100%;
   position: relative;
@@ -1005,7 +1034,6 @@ div.pagination {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
 }
 
 .multishipping_cart_wrapper .address_list_total .total_label {
@@ -1494,4 +1522,45 @@ input.po-changed {
 
 #mycart_modal .loader-wrapper .footer button:not(:first-child) {
   margin-left: 20px;
+}
+
+/* LOADER CSS */
+.loader {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 9999;
+}
+.loader.hidden {
+  display: none;
+}
+
+.loader .loader-wrapper {
+  background: #fff;
+  box-shadow: #666 0 0 15px;
+  width: 25%;
+  margin: 0 auto;
+  top: 20%;
+  position: relative;
+  padding: 35px;
+}
+.loader .title {
+  font-size: 26px;
+  margin: 0 0 15px 0;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+}
+.loader .content {
+  font-size: 16px;
+  text-align: center;
+  padding: 15px;
+}
+.loader .content .footer {
+  margin-top: 15px;
+  text-align: center;
+  padding-top: 15px;
 }
