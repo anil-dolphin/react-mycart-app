@@ -320,16 +320,20 @@ class MainForm extends React.Component {
     this.setState({ prodLocQty: currentProdLocQty }, () => {
       this.generateTotals();
     });
-
     this.setAutoSave();
   };
 
   removeQtyMultiple = (productId) => {
     const currentProdLocQty = this.state.prodLocQty;
-    delete currentProdLocQty[productId];
+    // delete currentProdLocQty[productId];
+
+    _.map(currentProdLocQty[productId], (qty, locationId) => {
+      currentProdLocQty[productId][locationId] = 0;
+    });
     this.setState({ prodLocQty: currentProdLocQty }, () => {
       this.generateTotals();
     });
+    this.setAutoSave();
   };
 
   setPO = (locationId, po) => {
@@ -397,6 +401,8 @@ class MainForm extends React.Component {
       );
     } else {
       this.updateProductFilterValue(type, value);
+      // Removed this as it's managed at Magento side
+      // this.clearProductPagination();
       await this.fetchProducts();
     }
   };
@@ -420,11 +426,15 @@ class MainForm extends React.Component {
         brand: 0,
       };
 
-      // let pagination = this.state.productsPagination;
-      // pagination = { limit: 25, page: 1, totalPage: 0 };
-      // this.setState({ productsPagination: pagination });
+      this.clearProductPagination();
       this.setState({ productFilters: filters }, this.fetchProducts);
     }
+  };
+
+  clearProductPagination = async () => {
+    let pagination = this.state.productsPagination;
+    pagination = { limit: 25, page: 1, totalPage: 0 };
+    await this.setState({ productsPagination: pagination });
   };
 
   searchProductFilter = async () => {
@@ -460,6 +470,7 @@ class MainForm extends React.Component {
       );
     } else {
       this.updateLocationFilterValue(type, value);
+      await this.clearLocationPagination();
       await this.fetchLocations();
     }
   };
@@ -484,11 +495,15 @@ class MainForm extends React.Component {
         qty: "gtz",
       };
 
-      // let pagination = this.state.locationsPagination;
-      // pagination = { limit: 6, page: 1, totalPage: 0 };
-      // this.setState({ locationsPagination: pagination });
+      this.clearLocationPagination();
       this.setState({ locationFilters: filters }, this.fetchLocations);
     }
+  };
+
+  clearLocationPagination = async () => {
+    let pagination = this.state.locationsPagination;
+    pagination = { limit: 6, page: 1, totalPage: 0 };
+    await this.setState({ locationsPagination: pagination });
   };
 
   searchLocationFilter = async () => {
@@ -614,7 +629,7 @@ class MainForm extends React.Component {
       if (this.state.locationFilters.applyQty) await this.fetchLocations();
       await this.fetchProdLocQty();
       await this.fetchCartSummary();
-
+      this.generateTotals();
       updateCartSection();
       this.setLoaderState({
         show: false,
@@ -622,7 +637,7 @@ class MainForm extends React.Component {
     }
   };
 
-  goToShipping = async () => {
+  goToCheckout = async () => {
     if (this.isUpdatePending()) {
       await this.openPendingSavePopup(
         () => (window.location.href = getUrl("selectShipping"))
@@ -904,6 +919,12 @@ class MainForm extends React.Component {
               search={this.searchLocationFilter}
             />
             <div className="address_list_total table_grand_total_by_sku">
+              <a
+                href={getUrl("clearCart")}
+                className="theme-color-btn btn-clear-cart"
+              >
+                Clear Cart
+              </a>
               <div className="total_label">Extended</div>
             </div>
           </div>
@@ -979,7 +1000,7 @@ class MainForm extends React.Component {
               summary={this.state.cartSummary}
               allowUpdate={this.isUpdatePending()}
               updateOrder={this.updateOrder}
-              goToShipping={this.goToShipping}
+              goToCheckout={this.goToCheckout}
               stickFooter={this.state.stickFooter}
             />
           </div>

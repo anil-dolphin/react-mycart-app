@@ -26,7 +26,7 @@ const ProductBlock = ({ product, setQuantity, removeQuantity }) => {
           <img src={product.image} alt={product.sku} />
         </a>
       </div>
-      <div className="col col-8 product_url">
+      <div className="col col-95 product_url">
         <a
           href={product.product_url}
           onClick={(event) => {
@@ -42,7 +42,7 @@ const ProductBlock = ({ product, setQuantity, removeQuantity }) => {
           <p title={product.name}>{product.name}</p>
         </a>
       </div>
-      <div className="col col-4">
+      <div className="col col-3">
         <div className="product_action">
           <button
             type="button"
@@ -62,14 +62,6 @@ const ProductBlock = ({ product, setQuantity, removeQuantity }) => {
               </g>
             </svg>
           </button>
-
-          <button
-            className="simple-but red-but add_product_qty"
-            type="button"
-            onClick={() => allocateQuantity(product.entity_id)}
-          >
-            »
-          </button>
           <input
             type="number"
             size="4"
@@ -85,9 +77,16 @@ const ProductBlock = ({ product, setQuantity, removeQuantity }) => {
               });
             }}
           />
+          <button
+            className="simple-but red-but add_product_qty"
+            type="button"
+            onClick={() => allocateQuantity(product.entity_id)}
+          >
+            »
+          </button>
         </div>
       </div>
-      <div className="col col-2 single-price align-right">
+      <div className="col col-15 single-price align-right">
         {toCurrency(product.price)}
       </div>
     </div>

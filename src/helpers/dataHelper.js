@@ -106,6 +106,7 @@ if (deployMode === "PROD") {
           : "https://scp.demoproject.info/mycart/react/cartdata/",
       updateOrder:
         "https://scp.demoproject.info/index.php/checkout/cart/updatePost/",
+      clearCart: "https://scp.demoproject.info/index.php/customer/cart/clear/",
       manageLocations:
         "https://scp.demoproject.info/index.php/customer/address/location/",
       selectShipping:

@@ -95,13 +95,6 @@ class ProductFilters extends React.Component {
 
   render() {
     const { limit, page, totalPage } = this.props.pagination;
-    // {limit: 10, page: 1, totalPage: 193}
-    // {limit: 10, page: 20, totalPage: 193}
-    // {limit: 10, page: 2, totalPage: 193}
-    // {limit: 25, page: 7, totalPage: 193}
-    // {limit: 25, page: 8, totalPage: 193}
-    // {limit: 200, page: 1, totalPage: 193}
-
     let productsCount = limit;
     let isLastPage = false;
     if (limit * page >= totalPage) {
@@ -202,8 +195,8 @@ class ProductFilters extends React.Component {
           </div>
 
           <div className="one_filter_cart location_qty_filter_header">
-            {this.props.pagination.totalPage > 10 && (
-              <div className="pagination">
+            <div className="pagination">
+              {this.props.pagination.totalPage > 10 && (
                 <Pagination
                   activePage={this.props.pagination.page}
                   itemsCountPerPage={this.props.pagination.limit}
@@ -215,9 +208,45 @@ class ProductFilters extends React.Component {
                   linkClassPrev="prev arrow"
                   linkClassNext="next arrow"
                   linkClassLast="last arrow"
+                  prevPageText={
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      className="arrows-icon"
+                      width="18"
+                      height="18"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M15 19l-7-7 7-7"
+                      ></path>
+                    </svg>
+                  }
+                  nextPageText={
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      className="arrows-icon"
+                      width="18"
+                      height="18"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 5l7 7-7 7"
+                      ></path>
+                    </svg>
+                  }
                 />
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
 

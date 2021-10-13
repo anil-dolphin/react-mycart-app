@@ -1,3 +1,14 @@
+:root {
+  --color-white: #fff;
+  --color-black: #000;
+  --color-light: #a9a9a9;
+  --color-denied: #ff5555;
+  --body-back: #ebedef;
+  --color-bordo: #c11e48;
+  --white-hover: #f1f3f5;
+  --color-darkback: #5a6170;
+  --color-grey: #888888;
+}
 body {
   background-color: #ebedef;
   color: #3c3d47;

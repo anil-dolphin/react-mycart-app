@@ -50,10 +50,10 @@ class CartSummary extends React.Component {
             id="go_to_shipping"
             onClick={(event) => {
               event.preventDefault();
-              this.props.goToShipping();
+              this.props.goToCheckout();
             }}
           >
-            Select shipping
+            Checkout
           </a>
         </div>
       </div>

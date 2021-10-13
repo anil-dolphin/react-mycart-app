@@ -2,7 +2,7 @@ import React from "react";
 import _ from "lodash";
 import LocationBlock from "./LocationBlock";
 import { getFilterFieldsData, getUrl } from "../helpers/dataHelper";
-import Pagin from "./pagination";
+import Pagination from "react-js-pagination";
 
 class LocationFilters extends React.Component {
   renderRegionFilter = () => {
@@ -138,7 +138,7 @@ class LocationFilters extends React.Component {
         <div className="count_show_qty">
           <div className="show-qty-inner">
             <p>
-              <b>Shipping Stores:&nbsp;</b> Showing{" "}
+              <b>Shipping Addresses (Stores):&nbsp;</b> Showing{" "}
               {this.props.pagination.totalPage > 0 ? (
                 <React.Fragment>
                   <span className="now_shown">{fromTo.from}</span> to{" "}
@@ -154,6 +154,65 @@ class LocationFilters extends React.Component {
               <span className="is_filtered"></span>
             </p>
           </div>
+
+          <div className="location-pagination">
+            {this.props.pagination.totalPage > 6 && (
+              <Pagination
+                activePage={this.props.pagination.page}
+                itemsCountPerPage={this.props.pagination.limit}
+                totalItemsCount={this.props.pagination.totalPage}
+                pageRangeDisplayed={1}
+                onChange={this.props.handlePagination}
+                linkClassFirst="first arrow"
+                linkClassPrev="prev arrow"
+                linkClassNext="next arrow"
+                linkClassLast="last arrow"
+                prevPageText={
+                  <button type="button">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      className="arrows-icon"
+                      width="25"
+                      height="25"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M15 19l-7-7 7-7"
+                      ></path>
+                    </svg>
+                  </button>
+                }
+                nextPageText={
+                  <button type="button">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      className="arrows-icon"
+                      width="25"
+                      height="25"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 5l7 7-7 7"
+                      ></path>
+                    </svg>
+                  </button>
+                }
+                firstPageText={null}
+                lastPageText={null}
+              />
+            )}
+          </div>
+
           <div className="product_list_clear_filter">
             <button className="theme-color-btn" onClick={this.props.search}>
               Search
@@ -243,19 +302,6 @@ class LocationFilters extends React.Component {
                 <div className="row-table" id="location_name_by_sku">
                   {this.renderLocations()}
                 </div>
-
-                {this.props.pagination.totalPage > 6 && (
-                  <div className="pagination">
-                    <Pagin
-                      activePage={this.props.pagination.page}
-                      itemsCountPerPage={this.props.pagination.limit}
-                      totalItemsCount={this.props.pagination.totalPage}
-                      pageRangeDisplayed={5}
-                      handleClick={this.props.handlePagination}
-                      component="location"
-                    />
-                  </div>
-                )}
               </div>
             </div>
           </div>
