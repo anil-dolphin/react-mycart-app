@@ -203,18 +203,27 @@ class MainForm extends React.Component {
   /**
    * Operations
    */
+  getProduct = (productId) => {
+    const products = _.mapKeys(this.state.products, "entity_id");
+    return products[productId];
+  };
+
+  // getLocation = (locationId) => {
+  //   const locations = _.mapKeys(this.state.locations, "id");
+  //   return locations[locationId];
+  // };
+
   generateTotals = () => {
     const { prodLocQty } = this.state;
-    const products = this.state.products;
     var grandTotal = 0,
       pTotals = [],
       lTotals = [];
 
     Object.keys(prodLocQty).map((productId) => {
       let price = 0;
-      if (products[productId] === undefined)
-        price = this.quoteProdPrice[productId];
-      else price = products[productId].price;
+      const product = this.getProduct(productId);
+      if (product === undefined) price = this.quoteProdPrice[productId];
+      else price = product.price;
 
       Object.keys(prodLocQty[productId]).map((locationId) => {
         const qty = toQty(prodLocQty[productId][locationId]);
@@ -244,10 +253,9 @@ class MainForm extends React.Component {
   };
 
   getQtyWithCap = (productId, locationId, qty) => {
-    const products = this.state.products;
     const productsTotal = this.state.total.products;
     const prodLocQty = this.state.prodLocQty;
-    const product = products[productId];
+    const product = this.getProduct(productId);
     let qtyAdded = 0;
     if (productsTotal[productId] !== undefined) {
       qtyAdded = productsTotal[productId].qty;
@@ -271,7 +279,6 @@ class MainForm extends React.Component {
 
   setQty = (productId, locationId, qty) => {
     const qtyToSet = this.getQtyWithCap(productId, locationId, qty);
-
     const prodLocQty = this.state.prodLocQty;
 
     if (!prodLocQty[productId]) {
@@ -290,8 +297,7 @@ class MainForm extends React.Component {
     const { locations } = this.state;
     const currentProdLocQty = this.state.prodLocQty;
     const qtyToSet = data.qty;
-    const products = this.state.products;
-    const product = products[data.productId];
+    const product = this.getProduct(data.productId);
     const maxAllowedQty = Math.min(product.qty, product.max_sale_qty);
 
     let qtyArr = [];
@@ -401,8 +407,7 @@ class MainForm extends React.Component {
       );
     } else {
       this.updateProductFilterValue(type, value);
-      // Removed this as it's managed at Magento side
-      // this.clearProductPagination();
+      await this.clearProductPagination();
       await this.fetchProducts();
     }
   };
@@ -441,6 +446,7 @@ class MainForm extends React.Component {
     if (this.isUpdatePending()) {
       await this.openPendingSavePopup(() => this.searchProductFilter());
     } else {
+      await this.clearProductPagination();
       await this.fetchProducts();
     }
   };
@@ -510,6 +516,7 @@ class MainForm extends React.Component {
     if (this.isUpdatePending()) {
       await this.openPendingSavePopup(() => this.searchLocationFilter());
     } else {
+      await this.clearLocationPagination();
       await this.fetchLocations();
     }
   };
@@ -703,7 +710,7 @@ class MainForm extends React.Component {
       content: <div>Loading Products...</div>,
     });
     await getProducts(this.getProductPostData()).then((data) => {
-      this.setState({ products: _.mapKeys(data.products, "entity_id") });
+      this.setState({ products: data.products });
       this.setState({
         productsPagination: {
           limit: data.limit,
@@ -724,7 +731,7 @@ class MainForm extends React.Component {
       content: <div>Loading Stores...</div>,
     });
     await getLocations(this.getLocationPostData()).then((data) => {
-      this.setState({ locations: _.mapKeys(data.locations, "id") });
+      this.setState({ locations: data.locations });
       this.setState({
         locationsPagination: {
           limit: data.limit,
@@ -756,7 +763,9 @@ class MainForm extends React.Component {
     });
     let promiseProducts = new Promise((resolve, reject) => {
       getProducts(this.getProductPostData()).then((data) => {
-        this.setState({ products: _.mapKeys(data.products, "entity_id") });
+        this.setState({
+          products: data.products,
+        });
         this.setLoaderState({ content: <div>Loading Products...</div> });
         this.setState({
           productsPagination: {
@@ -772,7 +781,7 @@ class MainForm extends React.Component {
     });
     let promiseLocations = new Promise((resolve, reject) => {
       getLocations(this.getLocationPostData()).then((data) => {
-        this.setState({ locations: _.mapKeys(data.locations, "id") });
+        this.setState({ locations: data.locations });
         this.setLoaderState({ content: <div>Loading Stores...</div> });
         this.setState({
           locationsPagination: {
@@ -919,13 +928,15 @@ class MainForm extends React.Component {
               search={this.searchLocationFilter}
             />
             <div className="address_list_total table_grand_total_by_sku">
-              <a
-                href={getUrl("clearCart")}
-                className="theme-color-btn btn-clear-cart"
-              >
-                Clear Cart
-              </a>
-              <div className="total_label">Extended</div>
+              <div className="label-with-clear">
+                <a
+                  href={getUrl("clearCart")}
+                  className="theme-color-btn btn-clear-cart"
+                >
+                  Clear Cart
+                </a>
+                <div className="total_label">Extended</div>
+              </div>
             </div>
           </div>
 

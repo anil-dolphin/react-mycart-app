@@ -7,7 +7,7 @@ class LocationBlock extends React.Component {
     return (
       <div
         className="col col-31 location-name border-right"
-        title="Delray Beach - Delray Marketplace"
+        title={location.custom_attributes.location_name.value}
       >
         <div className="location-info">
           <span>

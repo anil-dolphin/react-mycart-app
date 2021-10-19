@@ -34,11 +34,12 @@ const ProductBlock = ({ product, setQuantity, removeQuantity }) => {
             openProductPopup(product.product_url);
           }}
         >
-          {getShowAsNew() && product.is_new_product ? (
+          {getShowAsNew() && product.is_new ? (
             <span className="is_new"></span>
           ) : (
             ""
           )}
+          {product.is_sale ? <span className="is_sale"></span> : ""}
           <p title={product.name}>{product.name}</p>
         </a>
       </div>

@@ -202,7 +202,6 @@ class ProductFilters extends React.Component {
                   itemsCountPerPage={this.props.pagination.limit}
                   totalItemsCount={this.props.pagination.totalPage}
                   pageRangeDisplayed={5}
-                  hideDisabled={true}
                   onChange={this.props.onPaginate}
                   linkClassFirst="first arrow"
                   linkClassPrev="prev arrow"
