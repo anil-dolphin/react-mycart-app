@@ -162,7 +162,7 @@ class LocationFilters extends React.Component {
                 itemsCountPerPage={this.props.pagination.limit}
                 totalItemsCount={this.props.pagination.totalPage}
                 pageRangeDisplayed={1}
-                onChange={this.props.handlePagination}
+                onChange={this.props.onPaginate}
                 linkClassFirst="first arrow"
                 linkClassPrev="prev arrow"
                 linkClassNext="next arrow"

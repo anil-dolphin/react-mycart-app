@@ -51,6 +51,8 @@ class MainForm extends React.Component {
       make: 0,
       model: 0,
       brand: 0,
+      applyQty: false,
+      qty: "gtz",
     },
     locationFilters: {
       kw: "",
@@ -429,6 +431,8 @@ class MainForm extends React.Component {
         make: 0,
         model: 0,
         brand: 0,
+        applyQty: false,
+        qty: "gtz",
       };
 
       this.clearProductPagination();
@@ -462,6 +466,8 @@ class MainForm extends React.Component {
       kw: this.state.productFilters.kw.trim(),
       make: this.state.productFilters.make,
       model: this.state.productFilters.model,
+      applyQty: this.state.productFilters.applyQty,
+      qty: this.state.productFilters.qty,
       limit: this.state.productsPagination.limit,
       page: this.state.productsPagination.page,
     };
@@ -633,6 +639,7 @@ class MainForm extends React.Component {
         content: <div>Loading Cart...</div>,
       });
 
+      if (this.state.productFilters.applyQty) await this.fetchProducts();
       if (this.state.locationFilters.applyQty) await this.fetchLocations();
       await this.fetchProdLocQty();
       await this.fetchCartSummary();
@@ -920,7 +927,7 @@ class MainForm extends React.Component {
               locations={this.state.locations}
               changePO={this.setPO}
               pagination={this.state.locationsPagination}
-              handlePagination={this.handleLocationPagination}
+              onPaginate={this.handleLocationPagination}
               filters={this.state.locationFilters}
               updateFilter={this.updateLocationFilter}
               updateFilterValue={this.updateLocationFilterValue}

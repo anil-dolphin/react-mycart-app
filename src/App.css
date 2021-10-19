@@ -3,13 +3,6 @@
 .page-main > * {
   max-width: 1600px;
 }
-
-.multishipping_filters_cart .one_filter_cart label {
-  display: block;
-  font-size: 16px;
-  font-weight: 500;
-  margin-bottom: 4px;
-}
 .multishipping_cart_wrapper {
   display: flex;
   align-items: normal;
@@ -562,12 +555,29 @@ a.trans-color-btn:hover,
   max-width: 100%;
 }
 .filter_product_search_wrapper {
-  grid-row-start: 4;
   width: 100% !important;
   display: block !important;
   max-width: 100%;
-  grid-column: auto/span 2;
+  grid-column: auto/span 1;
   margin: 4px 0 0;
+}
+.filter_product_qty_main {
+  grid-column: auto/span 2;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin: 4px 0 0;
+  column-gap: 5px;
+}
+.multishipping_cart_wrapper .filter_product_qty_main input {
+  position: relative;
+  top: 2px;
+  margin: 0 5px 0 0px;
+}
+.multishipping_cart_wrapper .filter_product_qty_main label {
+  font-size: 14px;
+  font-weight: normal;
+  margin: 0;
 }
 .multishipping_cart_wrapper .product_filter_header input {
   max-width: 200px;
@@ -606,7 +616,9 @@ a.trans-color-btn:hover,
   max-width: 90px;
 }
 .multishipping_cart_wrapper .location_list_qty_header .one_filter_cart {
-  max-width: 280px;
+  max-width: 265px;
+  justify-content: flex-end;
+  grid-column-gap: 5px;
 }
 .multishipping_cart_wrapper .location_list_qty_header .one_filter_cart input {
   position: relative;
@@ -631,6 +643,7 @@ a.trans-color-btn:hover,
   text-align: left;
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 .multishipping_cart_wrapper .count_show_qty:first-child {
   border-top: none;
@@ -672,9 +685,6 @@ a.trans-color-btn:hover,
   background: var(--color-light-grey);
 }
 
-.multishipping_cart_body .address_list_slider {
-  min-height: 330px;
-}
 .multishipping_cart_wrapper
   .location_list_qty_table_wrapper
   .address_list_slider

@@ -73,6 +73,18 @@ class ProductFilters extends React.Component {
     ));
   };
 
+  renderQtyFilter = () => {
+    const qtys = [
+      { value: "gtz", label: "Qty > 0" },
+      { value: "eqz", label: "Qty = 0" },
+    ];
+    return qtys.map((qty) => (
+      <option key={`qt${qty.value}`} value={qty.value}>
+        {qty.label}
+      </option>
+    ));
+  };
+
   renderKeywordFilter = () => {
     return (
       <form
@@ -136,6 +148,17 @@ class ProductFilters extends React.Component {
                 <span className="is_filtered"></span>
               </p>
             </div>
+            <div className="product_list_clear_filter">
+              <button className="theme-color-btn" onClick={this.props.search}>
+                Search
+              </button>
+              <button
+                className="theme-color-btn"
+                onClick={this.props.clearFilters}
+              >
+                Clear Filters
+              </button>
+            </div>
           </div>
           <div className="one_filter_cart product_filter_header">
             <div className="category-list" style={{ paddingTop: 0 }}>
@@ -181,16 +204,32 @@ class ProductFilters extends React.Component {
             <div className="filter_product_search_wrapper">
               {this.renderKeywordFilter()}
             </div>
-            <div className="product_list_clear_filter">
-              <button className="theme-color-btn" onClick={this.props.search}>
-                Search
-              </button>
-              <button
-                className="theme-color-btn"
-                onClick={this.props.clearFilters}
-              >
-                Clear Filters
-              </button>
+            <div className="filter_product_qty_main">
+              <div className="filter_product_qty_search_wrapper">
+                <label htmlFor="filter_by_product_qty">
+                  <input
+                    type="checkbox"
+                    id="filter_by_product_qty"
+                    name="filter_by_product_qty"
+                    checked={this.props.filters.applyQty}
+                    onChange={(event) =>
+                      this.props.updateFilter("applyQty", event.target.checked)
+                    }
+                  />
+                  Only show products with quantity:{" "}
+                </label>
+              </div>
+              <div className="filter_product_qty_value_search_wrapper">
+                <select
+                  disabled={!this.props.filters.applyQty}
+                  onChange={(event) =>
+                    this.props.updateFilter("qty", event.target.value)
+                  }
+                  value={this.props.filters.qty}
+                >
+                  {this.renderQtyFilter()}
+                </select>
+              </div>
             </div>
           </div>
 
