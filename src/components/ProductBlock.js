@@ -15,6 +15,7 @@ const ProductBlock = ({ product, setQuantity, removeQuantity }) => {
 
   return (
     <div className="row-table product">
+      {product.is_sale ? <span className="is_sale"></span> : ""}
       <div className="col col-2 img-product border-right">
         <a
           href={product.product_url}
@@ -39,7 +40,6 @@ const ProductBlock = ({ product, setQuantity, removeQuantity }) => {
           ) : (
             ""
           )}
-          {product.is_sale ? <span className="is_sale"></span> : ""}
           <p title={product.name}>{product.name}</p>
         </a>
       </div>
