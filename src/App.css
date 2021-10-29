@@ -865,7 +865,6 @@ div.pagination {
 }
 .address_list_qty .location-pagination button {
   color: var(--color-white);
-  position: relative;
   background: var(--color-bordo);
   border: none;
   cursor: pointer;
@@ -1421,8 +1420,9 @@ input.po-changed {
   background-color: var(--color-bordo);
   border-color: var(--color-bordo);
 }
-.multishipping_footer .csv_import_status {
-  color: var(--color-bordo);
+.multishipping_footer p.csv_import_status {
+  color: #ff0000;
+  font-size: 16px;
 }
 *.hidden_el {
   display: none !important;

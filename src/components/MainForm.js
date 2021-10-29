@@ -1012,7 +1012,10 @@ class MainForm extends React.Component {
           </div>
         </div>
         <div className="multishipping_footer">
-          <ImportExport downloadCart={this.downloadCurrentCart} />
+          <ImportExport
+            downloadCart={this.downloadCurrentCart}
+            showLoader={this.setLoaderState}
+          />
           <div className="total_block">
             <CartSummary
               summary={this.state.cartSummary}

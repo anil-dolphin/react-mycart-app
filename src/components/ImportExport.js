@@ -86,7 +86,11 @@ class ImportExport extends React.Component {
             accept=".xlsx, .xls, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
             onChange={(event) => {
               event.preventDefault();
-
+              this.props.showLoader({
+                show: true,
+                title: "Please wait",
+                content: <div>Importing Products...</div>,
+              });
               document.getElementById("import-form").submit();
             }}
           />
@@ -106,6 +110,11 @@ class ImportExport extends React.Component {
             accept=".xlsx, .xls, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
             onChange={(event) => {
               event.preventDefault();
+              this.props.showLoader({
+                show: true,
+                title: "Please wait",
+                content: <div>Importing Products...</div>,
+              });
               document.getElementById("import-form-rtpos").submit();
             }}
           />
