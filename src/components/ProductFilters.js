@@ -290,7 +290,7 @@ class ProductFilters extends React.Component {
 
         <div className="table-header">
           <div className="row-table">
-            <div className="col col-9">Product Descripton</div>
+            <div className="col col-9">Product Description</div>
             <div className="col col-4"></div>
             <div className="col col-3 align-right">Price</div>
           </div>
