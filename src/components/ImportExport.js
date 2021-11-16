@@ -2,6 +2,11 @@ import React from "react";
 import { getUrl, getFormKey, importPending } from "../helpers/dataHelper";
 
 class ImportExport extends React.Component {
+  validateExcelFile = (ext) => {
+    var ext = ext.match(/\.([^\.]+)$/)[1];
+    return ext === "xlsx" || ext === "xls";
+  };
+
   render() {
     return (
       <div className="exel-part">
@@ -86,12 +91,16 @@ class ImportExport extends React.Component {
             accept=".xlsx, .xls, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
             onChange={(event) => {
               event.preventDefault();
-              this.props.showLoader({
-                show: true,
-                title: "Please wait",
-                content: <div>Importing Products...</div>,
-              });
-              document.getElementById("import-form").submit();
+              if (this.validateExcelFile(event.target.value)) {
+                this.props.showLoader({
+                  show: true,
+                  title: "Please wait",
+                  content: <div>Importing Products...</div>,
+                });
+                document.getElementById("import-form").submit();
+              } else {
+                alert("Invalid file. Only excel files are supported.");
+              }
             }}
           />
         </form>
@@ -110,12 +119,16 @@ class ImportExport extends React.Component {
             accept=".xlsx, .xls, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
             onChange={(event) => {
               event.preventDefault();
-              this.props.showLoader({
-                show: true,
-                title: "Please wait",
-                content: <div>Importing Products...</div>,
-              });
-              document.getElementById("import-form-rtpos").submit();
+              if (this.validateExcelFile(event.target.value)) {
+                this.props.showLoader({
+                  show: true,
+                  title: "Please wait",
+                  content: <div>Importing Products...</div>,
+                });
+                document.getElementById("import-form-rtpos").submit();
+              } else {
+                alert("Invalid file. Only excel files are supported.");
+              }
             }}
           />
         </form>
