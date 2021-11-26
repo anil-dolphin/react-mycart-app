@@ -5,7 +5,6 @@ import ProductBlock from "./ProductBlock";
 import CartSummary from "./CartSummary";
 import ImportExport from "./ImportExport";
 import Loader from "./Loader";
-
 import _ from "lodash";
 
 import {
@@ -43,6 +42,7 @@ class MainForm extends React.Component {
     total: { products: [], locations: [], grand: 0 },
     locations: {},
     products: {},
+    brands: [],
     productsPagination: { limit: 25, page: 1, totalPage: 0 },
     locationsPagination: { limit: 6, page: 1, totalPage: 0 },
     productFilters: {
@@ -411,6 +411,7 @@ class MainForm extends React.Component {
       this.updateProductFilterValue(type, value);
       await this.clearProductPagination();
       await this.fetchProducts();
+      this.resetBrandFilter();
     }
   };
 
@@ -418,6 +419,16 @@ class MainForm extends React.Component {
     const filters = this.state.productFilters;
     filters[type] = value;
     this.setState({ productFilters: filters });
+  };
+
+  resetBrandFilter = () => {
+    if (
+      _.includes(this.state.brands, this.state.productFilters.brand) ||
+      this.state.brands.includes(parseInt(this.state.productFilters.brand))
+    ) {
+    } else {
+      this.updateProductFilterValue("brand", "0");
+    }
   };
 
   clearProductFilter = async () => {
@@ -717,7 +728,7 @@ class MainForm extends React.Component {
       content: <div>Loading Products...</div>,
     });
     await getProducts(this.getProductPostData()).then((data) => {
-      this.setState({ products: data.products });
+      this.setState({ products: data.products, brands: data.brands });
       this.setState({
         productsPagination: {
           limit: data.limit,
@@ -772,6 +783,7 @@ class MainForm extends React.Component {
       getProducts(this.getProductPostData()).then((data) => {
         this.setState({
           products: data.products,
+          brands: data.brands,
         });
         this.setLoaderState({ content: <div>Loading Products...</div> });
         this.setState({
@@ -914,6 +926,7 @@ class MainForm extends React.Component {
           >
             <ProductFilters
               filters={this.state.productFilters}
+              brands={this.state.brands}
               updateFilter={this.updateProductFilter}
               updateFilterValue={this.updateProductFilterValue}
               clearFilters={this.clearProductFilter}

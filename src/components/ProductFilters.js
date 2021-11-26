@@ -65,12 +65,18 @@ class ProductFilters extends React.Component {
   };
 
   renderBrandFilter = () => {
-    const brands = getFilterFieldsData("brands");
-    return brands.map((brand) => (
-      <option key={`br${brand.id}`} value={brand.id}>
-        {brand.label}
-      </option>
-    ));
+    const allBrands = getFilterFieldsData("brands");
+    const brandsToShow = this.props.brands;
+    return allBrands.map((brand) => {
+      return _.includes(brandsToShow, brand.id) ||
+        brandsToShow.includes(parseInt(brand.id)) ? (
+        <option key={`br${brand.id}`} value={brand.id}>
+          {brand.label}
+        </option>
+      ) : (
+        ""
+      );
+    });
   };
 
   renderQtyFilter = () => {
