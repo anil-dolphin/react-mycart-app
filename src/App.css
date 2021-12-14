@@ -1628,3 +1628,29 @@ input.po-changed {
   text-align: center;
   padding-top: 15px;
 }
+
+/* TOOLTIP CSS */
+.help-tooltip {
+  background-color: var(--color-bordo) !important;
+  max-width: 500px;
+}
+.help-tooltip::after {
+  border-bottom-color: var(--color-bordo) !important;
+}
+.help-tooltip .tooltip-actions {
+  text-align: right;
+}
+.help-tooltip .tooltip-actions button {
+  margin: 0 5px;
+}
+.tt_overlay {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9;
+  background: rgba(0, 0, 0, 0.1);
+  right: 0;
+  left: 0;
+}

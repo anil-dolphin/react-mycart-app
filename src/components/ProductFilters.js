@@ -166,7 +166,12 @@ class ProductFilters extends React.Component {
               </button>
             </div>
           </div>
-          <div className="one_filter_cart product_filter_header">
+          <div
+            className="one_filter_cart product_filter_header"
+            data-tip
+            data-for="tt_prod_filters"
+            id="ele_tt_prod_filters"
+          >
             <div className="category-list" style={{ paddingTop: 0 }}>
               {this.renderCategoryFilter()}
             </div>

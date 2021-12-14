@@ -6,6 +6,7 @@ import CartSummary from "./CartSummary";
 import ImportExport from "./ImportExport";
 import Loader from "./Loader";
 import _ from "lodash";
+import Tooltips from "./Tooltips";
 
 import {
   getProducts,
@@ -1040,6 +1041,8 @@ class MainForm extends React.Component {
           </div>
         </div>
         <Loader loaderData={this.state.loader}></Loader>
+        <Tooltips />
+        <div className="tt_overlay"></div>
       </div>
     );
   }
