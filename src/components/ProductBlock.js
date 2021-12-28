@@ -24,7 +24,7 @@ const ProductBlock = ({ product, setQuantity, removeQuantity }) => {
             openProductPopup(product.product_url);
           }}
         >
-          {/* <img src={product.image} alt={product.sku} /> */}
+          <img src={product.image} alt={product.sku} />
         </a>
       </div>
       <div className="col col-95 product_url">

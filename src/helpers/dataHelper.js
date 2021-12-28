@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-const deployMode = "DEV"; // DEV / PROD
+const deployMode = "PROD"; // DEV / PROD
 
 if (deployMode === "PROD") {
 } else {
@@ -124,33 +124,9 @@ if (deployMode === "PROD") {
       rtposImport:
         "https://scp.demoproject.info/index.php/customer/cart/importrtpos/",
     },
-    tooltips: {
-      tt_prod_filters:
-        "These are product filters. Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text",
-      tt_prod_filters_qty:
-        "These are product qty filters. Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text",
-      tt_prod_pagination:
-        "These are product qty filters. Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text",
-      tt_prod_popup:
-        "These are product qty filters. Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text",
-      tt_prod_action_multi_qty:
-        "These are product qty filters. Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text",
-      tt_loc_filters:
-        "These are product filters. Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text",
-      tt_loc_filters_qty:
-        "These are product qty filters. Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text",
-      tt_loc_pagination:
-        "These are product qty filters. Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text",
-      tt_loc_address:
-        "These are product qty filters. Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text",
-      tt_loc_po:
-        "These are product qty filters. Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text",
-      tt_qty_input:
-        "These are product qty filters. Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text Sample Tooltip text",
-    },
     currency: "$",
     showAsNew: true,
-    importPending: true,
+    importMsg: false,
   };
 }
 
@@ -348,8 +324,8 @@ export function getCurrency() {
 export function getShowAsNew() {
   return getMyCartField("showAsNew");
 }
-export function importPending() {
-  return getMyCartField("importPending");
+export function importMsg() {
+  return getMyCartField("importMsg");
 }
 export function updateCartSection() {
   window.myCartFn.updateCartSection();

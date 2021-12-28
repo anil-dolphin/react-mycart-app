@@ -1,5 +1,5 @@
 import React from "react";
-import { getUrl, getFormKey, importPending } from "../helpers/dataHelper";
+import { getUrl, getFormKey, importMsg } from "../helpers/dataHelper";
 
 class ImportExport extends React.Component {
   validateExcelFile = (ext) => {
@@ -11,14 +11,7 @@ class ImportExport extends React.Component {
     return (
       <div className="exel-part">
         <h3>Prefer Excel?</h3>
-        {importPending() ? (
-          <p className="csv_import_status">
-            Your import is in progress, we will notify you through an email once
-            it is processed.
-          </p>
-        ) : (
-          ""
-        )}
+        {importMsg() ? <p className="csv_import_status">{importMsg()}</p> : ""}
         <p>
           Download your current cart as a spreadsheet, update the quantities and
           we will create a shopping cart for you.
