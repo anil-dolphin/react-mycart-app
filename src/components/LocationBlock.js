@@ -32,7 +32,8 @@ class LocationBlock extends React.Component {
             className={this.props.cssClass}
             value={this.props.po}
             onChange={(event) => {
-              this.props.changePO(location.id, event.target.value.trim());
+              let po = event.target.value.trim().replace(/[^0-9a-z]/gi, "");
+              this.props.changePO(location.id, po);
             }}
           />
         </div>
