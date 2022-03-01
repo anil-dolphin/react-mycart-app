@@ -1605,7 +1605,8 @@ input.po-changed {
 .loader .loader-wrapper {
   background: #fff;
   box-shadow: #666 0 0 15px;
-  width: 25%;
+  max-width: 500px;
+  width: 100%;
   margin: 0 auto;
   top: 20%;
   position: relative;

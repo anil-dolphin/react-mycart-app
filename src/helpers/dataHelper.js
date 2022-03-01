@@ -11,6 +11,9 @@ if (deployMode === "PROD") {
   window.myCartFn.openProductPopup = function (url) {
     console.log(url);
   };
+  window.myCartFn.goToCheckout = function (url) {
+    console.log("goToCheckout");
+  };
   window.mycart = {
     filters: {
       // regions: [{ label: "MidWest" }, { label: "West" }],

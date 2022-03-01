@@ -32,6 +32,9 @@ class MainForm extends React.Component {
     this.refMyCartBody = React.createRef();
     this.refMyCartHeader = React.createRef();
     this.refMyCartFooter = React.createRef();
+
+    // expose goToCheckout() for Checkout button of header
+    window.myCartFn.goToCheckout = this.goToCheckout;
   }
 
   state = {
@@ -360,16 +363,17 @@ class MainForm extends React.Component {
     );
   };
 
-  openPendingSavePopup = (callback) => {
+  openPendingSavePopup = (callback, msg = null) => {
+    msg =
+      msg == null
+        ? "The changes you made in the cart will be lost. Please click on Update Order before proceeding."
+        : msg;
     this.setLoaderState({
       show: true,
       title: "Attention",
       content: (
         <div>
-          <div>
-            The changes you made in the cart will be lost. Please, click on
-            Update Order before proceeding.
-          </div>
+          <div>{msg}</div>
           <div className="footer">
             <button
               className="round-but active-but"
@@ -665,7 +669,8 @@ class MainForm extends React.Component {
   goToCheckout = async () => {
     if (this.isUpdatePending()) {
       await this.openPendingSavePopup(
-        () => (window.location.href = getUrl("selectShipping"))
+        () => (window.location.href = getUrl("selectShipping")),
+        "Would you like to save your cart before proceeding to checkout?"
       );
     } else {
       window.location.href = getUrl("selectShipping");
