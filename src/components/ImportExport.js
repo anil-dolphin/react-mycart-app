@@ -3,7 +3,7 @@ import { getUrl, getFormKey, importMsg } from "../helpers/dataHelper";
 
 class ImportExport extends React.Component {
   validateExcelFile = (ext) => {
-    var ext = ext.match(/\.([^\.]+)$/)[1];
+    ext = ext.match(/\.([^\.]+)$/)[1];
     return ext === "xlsx" || ext === "xls";
   };
 

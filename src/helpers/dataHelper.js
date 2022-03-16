@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-const deployMode = "PROD"; // DEV / PROD
+const deployMode = "DEV"; // DEV / PROD
 
 if (deployMode === "PROD") {
 } else {
