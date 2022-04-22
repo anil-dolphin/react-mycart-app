@@ -196,7 +196,6 @@ class MainForm extends React.Component {
       return (
         <div
           className="col col-31 border-right total-column"
-          data-lid="207"
           key={`ltotal${location.id}`}
         >
           <span>{toCurrency(total)}</span>
@@ -681,7 +680,7 @@ class MainForm extends React.Component {
     clearInterval(this.autoSaveInterval);
     this.autoSaveInterval = setInterval(() => {
       this.updateOrder();
-    }, 10000);
+    }, 90000);
   };
 
   downloadCurrentCart = () => {
