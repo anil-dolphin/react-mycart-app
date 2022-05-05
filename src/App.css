@@ -909,7 +909,7 @@ div.pagination {
   .location-info {
   overflow: hidden;
   text-overflow: ellipsis;
-  min-height: 78px;
+  min-height: 38px;
   position: relative;
 }
 
@@ -945,7 +945,6 @@ div.pagination {
   .location-info
   .more-info
   span {
-  line-height: 38px;
   display: block;
 }
 

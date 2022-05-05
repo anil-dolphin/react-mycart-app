@@ -15,14 +15,15 @@ class LocationBlock extends React.Component {
           </span>
           <br />
           {location.custom_attributes.location_name.value}
-          <br />
-          <span>{location.custom_attributes.location_store_id.value}</span>
           <div className="more-info">
             <span className="cname">
               {location.firstname} {location.lastname}
             </span>
             <span className="phoneno">{location.telephone}</span>
           </div>
+        </div>
+        <div className="location-id">
+          {location.custom_attributes.location_store_id.value}
         </div>
         <div className="location-po">
           <input
