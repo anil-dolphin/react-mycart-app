@@ -48,6 +48,7 @@ class MainForm extends React.Component {
     brands: [],
     productsPagination: { limit: 25, page: 1, totalPage: 0 },
     locationsPagination: { limit: 6, page: 1, totalPage: 0 },
+    showCartSummary: false,
     productFilters: {
       kw: "",
       categories: [],
@@ -405,6 +406,24 @@ class MainForm extends React.Component {
     });
   };
 
+  setShowCartSummary = async (value) => {
+    this.setState({ showCartSummary: value });
+    this.updateProductFilterValue("qty", "gtz");
+    await this.updateProductFilter("applyQty", value);
+    this.updateLocationFilterValue("qty", "gtz");
+    await this.updateLocationFilter("applyQty", value);
+  };
+
+  updateShowCartSummary = () => {
+    let showCartSummary =
+      this.state.productFilters.applyQty == true &&
+      this.state.productFilters.qty == "gtz" &&
+      this.state.locationFilters.applyQty == true &&
+      this.state.locationFilters.qty == "gtz";
+
+    this.setState({ showCartSummary: showCartSummary });
+  };
+
   updateProductFilter = async (type, value) => {
     if (this.isUpdatePending()) {
       await this.openPendingSavePopup(() =>
@@ -412,6 +431,7 @@ class MainForm extends React.Component {
       );
     } else {
       this.updateProductFilterValue(type, value);
+      this.updateShowCartSummary();
       await this.clearProductPagination();
       await this.fetchProducts();
       this.resetBrandFilter();
@@ -496,6 +516,7 @@ class MainForm extends React.Component {
       );
     } else {
       this.updateLocationFilterValue(type, value);
+      this.updateShowCartSummary();
       await this.clearLocationPagination();
       await this.fetchLocations();
     }
@@ -685,6 +706,42 @@ class MainForm extends React.Component {
 
   downloadCurrentCart = () => {
     downloadCart({ qty: this.state.prodLocQty, po: this.state.locPo });
+  };
+
+  alertClearCart = () => {
+    let msg = "Are you sure, you want to clear cart ?";
+    this.setLoaderState({
+      show: true,
+      title: "Attention",
+      content: (
+        <div>
+          <div>{msg}</div>
+          <div className="footer">
+            <button
+              className="round-but active-but"
+              type="button"
+              onClick={() => {
+                window.location.href = getUrl("clearCart");
+              }}
+            >
+              <span>Yes</span>
+            </button>
+            <button
+              className="round-but"
+              type="button"
+              data-role="action"
+              onClick={() => {
+                this.setLoaderState({
+                  show: false,
+                });
+              }}
+            >
+              <span>No</span>
+            </button>
+          </div>
+        </div>
+      ),
+    });
   };
 
   /**
@@ -906,8 +963,8 @@ class MainForm extends React.Component {
     this.handleStickyHeaderFooter();
   };
 
-  getTestCont = () => {
-    return <div>LoadinggetTestCont...</div>;
+  testIt = () => {
+    console.log("TEST");
   };
 
   render() {
@@ -931,12 +988,15 @@ class MainForm extends React.Component {
             <ProductFilters
               filters={this.state.productFilters}
               brands={this.state.brands}
+              showCartSummary={this.state.showCartSummary}
+              setShowCartSummary={this.setShowCartSummary}
               updateFilter={this.updateProductFilter}
               updateFilterValue={this.updateProductFilterValue}
               clearFilters={this.clearProductFilter}
               search={this.searchProductFilter}
               pagination={this.state.productsPagination}
               onPaginate={this.handleProductPagination}
+              onClearCart={this.alertClearCart}
             />
             <LocationFilters
               locPo={this.state.locPo}
@@ -946,6 +1006,8 @@ class MainForm extends React.Component {
               pagination={this.state.locationsPagination}
               onPaginate={this.handleLocationPagination}
               filters={this.state.locationFilters}
+              showCartSummary={this.state.showCartSummary}
+              setShowCartSummary={this.setShowCartSummary}
               updateFilter={this.updateLocationFilter}
               updateFilterValue={this.updateLocationFilterValue}
               clearFilters={this.clearLocationFilter}
@@ -953,12 +1015,6 @@ class MainForm extends React.Component {
             />
             <div className="address_list_total table_grand_total_by_sku">
               <div className="label-with-clear">
-                <a
-                  href={getUrl("clearCart")}
-                  className="theme-color-btn btn-clear-cart"
-                >
-                  Clear Cart
-                </a>
                 <div className="total_label">Extended</div>
               </div>
             </div>

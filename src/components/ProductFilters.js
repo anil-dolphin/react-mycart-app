@@ -154,15 +154,12 @@ class ProductFilters extends React.Component {
                 <span className="is_filtered"></span>
               </p>
             </div>
-            <div className="product_list_clear_filter">
-              <button className="theme-color-btn" onClick={this.props.search}>
-                Search
-              </button>
+            <div className="product-actions">
               <button
                 className="theme-color-btn"
-                onClick={this.props.clearFilters}
+                onClick={this.props.onClearCart}
               >
-                Clear Filters
+                Clear Cart
               </button>
             </div>
           </div>
@@ -290,6 +287,33 @@ class ProductFilters extends React.Component {
                   }
                 />
               )}
+            </div>
+            <div className="product_list_clear_filter">
+              <button className="theme-color-btn" onClick={this.props.search}>
+                Search
+              </button>
+              <button
+                className="theme-color-btn"
+                onClick={this.props.clearFilters}
+              >
+                Clear Filters
+              </button>
+            </div>
+            <div className="cart_summary_filter">
+              <label htmlFor="filter_by_cart_summary">Show Cart Summary</label>
+              <input
+                type="checkbox"
+                id="filter_by_cart_summary"
+                name="filter_by_cart_summary"
+                checked={this.props.showCartSummary}
+                onChange={(event) => {
+                  this.props.setShowCartSummary(event.target.checked);
+                }}
+              />
+              <span className="cart_summary_toggle">
+                <div className="filter_active">ON</div>
+                <div className="filter_inactive">OFF</div>
+              </span>
             </div>
           </div>
         </div>
