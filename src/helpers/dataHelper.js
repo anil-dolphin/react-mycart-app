@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-const deployMode = "DEV"; // DEV / PROD
+const deployMode = "PROD"; // DEV / PROD
 
 if (deployMode === "PROD") {
 } else {
@@ -130,6 +130,7 @@ if (deployMode === "PROD") {
     currency: "$",
     showAsNew: true,
     importMsg: false,
+    isIQMetrix: false,
   };
 }
 
@@ -329,6 +330,9 @@ export function getShowAsNew() {
 }
 export function importMsg() {
   return getMyCartField("importMsg");
+}
+export function isIQMetrix() {
+  return getMyCartField("isIQMetrix");
 }
 export function updateCartSection() {
   window.myCartFn.updateCartSection();

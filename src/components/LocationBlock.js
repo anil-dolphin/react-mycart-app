@@ -1,4 +1,5 @@
 import React from "react";
+import { isIQMetrix } from "../helpers/dataHelper";
 
 class LocationBlock extends React.Component {
   render() {
@@ -30,6 +31,7 @@ class LocationBlock extends React.Component {
             type="text"
             size="20"
             placeholder="Purchase Order #"
+            disabled={isIQMetrix()}
             className={this.props.cssClass}
             value={this.props.po}
             onChange={(event) => {
