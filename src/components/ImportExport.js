@@ -18,7 +18,7 @@ class ImportExport extends React.Component {
         </p>
         <div className="import-execel-wrapper">
           <label htmlFor="import_excel" className="round-but black-but">
-            Import Order Data
+            Import SKU by Store Cart
           </label>
           <label htmlFor="import_excel_rtpos" className="round-but black-but">
             Import from POS
@@ -34,24 +34,27 @@ class ImportExport extends React.Component {
                 this.props.downloadCart();
               }}
             >
-              Download Current Cart
+              Download SKU by Store Current Cart
             </a>
             <a
               href={getUrl("downSampleCart")}
               className="round-but active-but this_template_excel"
             >
-              Download Sample Cart Import
+              Download SKU by Store Sample
             </a>
           </div>
           <div className="download-link">
             <a href={getUrl("downRtposSample")} target="_blank">
-              Download POS Sample
+              Download RTPOS Import Sample
+            </a>
+            <a href={getUrl("downRqSample")} target="_blank">
+              Download RQ Import Sample
             </a>
             <a href={getUrl("downCiSample")} target="_blank">
-              Download Suggested Order Sample
+              Download Generic Import Sample1
             </a>
             <a href={getUrl("downDiSample")} target="_blank">
-              Download Order Import Sample
+              Download Generic Import Sample2
             </a>
           </div>
         </div>
@@ -61,7 +64,7 @@ class ImportExport extends React.Component {
               <strong>Notes:</strong>
             </p>
             <ul>
-              <li>Files must be in xlsx format only.</li>
+              <li>Files must be in xlsx/xls format only.</li>
               <li>
                 Please use the column headers found in the upload sample file
                 that matches your input file.

@@ -119,9 +119,13 @@ if (deployMode === "PROD") {
       downSampleCart:
         "https://scp.demoproject.info/index.php/customer/cart/exportTemplate/",
       downRtposSample:
-        "https://scp.demoproject.info/media/sample/rtpos_sample.xlsx",
-      downCiSample: "https://scp.demoproject.info/media/sample/ci_sample.xlsx",
-      downDiSample: "https://scp.demoproject.info/media/sample/di_sample.xlsx",
+        "https://scp.demoproject.info/media/sample/rtpos_import_sample_20220701.xlsx",
+      downRqSample:
+        "https://scp.demoproject.info/media/sample/rq_import_sample_20220701.xlsx",
+      downCiSample:
+        "https://scp.demoproject.info/media/sample/generic_import_1_20220701.xlsx",
+      downDiSample:
+        "https://scp.demoproject.info/media/sample/generic_import_2_20220701.xlsx",
       cartImport:
         "https://scp.demoproject.info/index.php/customer/cart/import/",
       rtposImport:
